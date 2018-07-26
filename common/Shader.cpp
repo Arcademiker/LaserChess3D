@@ -25,7 +25,7 @@ GLuint CreateShader(GLenum type, const char* pPath)
 	}
 	else
 	{
-		printf("Impossible to open %s. Are you in the right directory? Don't forget to read the FAQ !\n", pPath);
+		printf("Impossible to open %s. Are you in the right directory?\n", pPath);
 		getchar();
 		return 0;
 	}
@@ -108,6 +108,7 @@ CShader::CShader(int ID)
 
 CShader::~CShader()
 {
+    vecShaders.clear();
 }
 
 GLuint CShader::getID()
