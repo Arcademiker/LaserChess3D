@@ -29,16 +29,21 @@ include_directories(
         external/glfw-3.1.2/
         external/glm-0.9.7.1/
         external/glew-1.13.0/include/
-        external/assimp-3.1.1/include/
+        external/assimp-3.3.1/include/
         .)
+
 
 add_executable(LaserChess3D
         common/Shader.h
         common/Shader.cpp
         common/objloader.hpp
         common/objloader.cpp
+        common/vboindexer.cpp
+        common/vboindexer.hpp
+        common/texture.hpp
+        common/texture.cpp
         main.cpp  )
 
-target_link_libraries(LaserChess3D ${ALL_LIBS})
 
-target_link_libraries(LaserChess3D ${ASSIMP_LIBRARY})
+
+target_link_libraries(LaserChess3D ${ALL_LIBS} assimp)

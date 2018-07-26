@@ -9,6 +9,7 @@ add_definitions(
 	-DTW_NO_DIRECT3D
 	-DGLEW_STATIC
 	-D_CRT_SECURE_NO_WARNINGS
+		#-lassimp
 )
 
 ### GLFW ###
@@ -62,18 +63,31 @@ target_link_libraries(GLEW_1130
 include(CheckIncludeFile)
 include(CheckTypeSize)
 include(CheckFunctionExists)
-add_subdirectory( assimp-3.0.1270/contrib/zlib )
 
-# Compile without Boost
-include_directories( assimp-3.0.1270/code/BoostWorkaround )
-add_definitions( -DASSIMP_BUILD_BOOST_WORKAROUND )
 
-# Compile AssImp
-set( LIB_INSTALL_DIR "lib")
-set(LIBASSIMP_COMPONENT libassimp3.0-r1270-OGLtuts)
-set(ZLIB_LIBRARIES zlib)
+
+# set variables that are needed
+set(ZLIB_LIBRARIES zlibstatic)
+set(ENABLE_BOOST_WORKAROUND ON)
 set(BUILD_STATIC_LIB ON)
-#set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib)
-add_subdirectory( assimp-3.0.1270/code )
+set(BUILD_ASSIMP_TOOLS  ON)
+set(ASSIMP_BUILD_STATIC_LIB ON)
+
+add_subdirectory( assimp-3.3.1/)
+
+# ASSIMP search path
+#set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_LIST_DIR}/assimp-3.2/)
+
+#find_package(assimp REQUIRED)
+
+
+#find_library(ASSIMP_LIBRARY NAMES ${ASSIMP_LIBRARIES} PATH ${ASSIMP_LIBRARY_DIRS})
+
+
+
+
+
+
+
 
 
