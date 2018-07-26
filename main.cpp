@@ -1,6 +1,6 @@
 // Include standard headers
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -15,7 +15,7 @@ using namespace glm;
 
 #include "common/shader.hpp"
 
-int main( void )
+int main( )
 {
     // Initialise GLFW
     if( !glfwInit() )
@@ -32,8 +32,8 @@ int main( void )
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", NULL, NULL);
-    if( window == NULL ){
+    window = glfwCreateWindow( 1024, 768, "Tutorial 02 - Red triangle", nullptr, nullptr);
+    if( window == nullptr ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         getchar();
         glfwTerminate();
@@ -42,7 +42,7 @@ int main( void )
     glfwMakeContextCurrent(window);
 
     // Initialize GLEW
-    glewExperimental = true; // Needed for core profile
+    glewExperimental = 1; //static_cast<GLboolean>(true); // Needed for core profile
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
         getchar();
