@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+
+
 // Include GLEW
 #include <GL/glew.h>
 
@@ -11,9 +13,12 @@ GLFWwindow* window;
 
 // Include GLM
 #include <glm/glm.hpp>
-using namespace glm;
+
+
 
 #include "common/Shader.h"
+#include "common/objloader.hpp"
+
 
 int main( )
 {
@@ -117,3 +122,6 @@ int main( )
 
     return 0;
 }
+
+
+
