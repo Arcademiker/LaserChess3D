@@ -13,7 +13,7 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 using namespace glm;
 
-#include "common/shader.hpp"
+#include "common/Shader.h"
 
 int main( )
 {
@@ -61,8 +61,13 @@ int main( )
     glBindVertexArray(VertexArrayID);
 
     // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders( "../SimpleVertexShader.vertexshader", "../SimpleFragmentShader.fragmentshader" );
 
+    //GLuint programID = LoadShaders( "../SimpleVertexShader.vertexshader", "../SimpleFragmentShader.fragmentshader" );
+
+
+
+    CShader *myShader = CShader::createShaderProgram("../SimpleVertexShader.vertexshader", nullptr, nullptr, nullptr, "../SimpleFragmentShader.fragmentshader" );
+    GLuint programID = myShader->getID();
 
     static const GLfloat g_vertex_buffer_data[] = {
             -1.0f, -1.0f, 0.0f,

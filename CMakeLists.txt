@@ -31,8 +31,8 @@ include_directories(
         ${OPENGL_INCLUDE_DIR})
 
 add_executable(LaserChess3D
-        common/shader.hpp
-        common/shader.cpp
+        common/Shader.h
+        common/Shader.cpp
         main.cpp)
 
 target_link_libraries(LaserChess3D ${ALL_LIBS})
