@@ -38,7 +38,13 @@ GLFWwindow* window;
 #include "common/vboindexer.hpp"
 #include "common/CView.h"
 
+#include "CVAA.h"
+
+
 void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex);
+
+
+
 
 int main( void )
 {
@@ -67,7 +73,7 @@ int main( void )
     glfwMakeContextCurrent(window);
 
     // Initialize GLEW
-    glewExperimental = true; // Needed for core profile
+    glewExperimental = 1; // Needed for core profile
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
         getchar();
@@ -78,7 +84,7 @@ int main( void )
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     // Hide the mouse and enable unlimited mouvement
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // todo: comment out
 
     // Set the mouse at the center of the screen
     glfwPollEvents();
@@ -94,10 +100,6 @@ int main( void )
 
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
-
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
 
     /// Create and compile our GLSL program from the shaders
     CShader *myShader = CShader::createShaderProgram("../StandardShading.vertexshader", nullptr, nullptr, nullptr, "../StandardShading.fragmentshader" );
@@ -127,6 +129,10 @@ int main( void )
 
     // Load it into a VBO
 
+    GLuint VertexArrayID[1];
+    glGenVertexArrays(1, VertexArrayID);
+    glBindVertexArray(VertexArrayID[0]);
+
     GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -148,6 +154,14 @@ int main( void )
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
 
+
+
+
+    CVAA vaa0(vertexbuffer, 0,3,0,0); // 1rst attribute buffer : vertices
+    CVAA vaa1(uvbuffer,     1,2,0,0); // 2nd attribute buffer : UVs
+    CVAA vaa2(normalbuffer, 2,3,0,0); // 3rd attribute buffer : normals
+
+
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
@@ -159,7 +173,7 @@ int main( void )
 
     // Compute the MVP
     //glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-    glm::mat4 ProjectionMatrix =  glm::ortho(1.0f*-4.0f/3.0f,1.0f*4.0f/3.0f,-1.0f,1.0f,0.1f, 100.0f);
+    glm::mat4 ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
     glm::mat4 ViewMatrix = glm::lookAt(
             view.position,           // Camera is here
             view.position+view.direction, // and looks here : at the same position, plus "direction"
@@ -204,41 +218,8 @@ int main( void )
         // Set our "myTextureSampler" sampler to use Texture Unit 0
         glUniform1i(TextureID, 0);
 
-        // 1rst attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glVertexAttribPointer(
-                0,                  // attribute
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-        );
 
-        // 2nd attribute buffer : UVs
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-        glVertexAttribPointer(
-                1,                                // attribute
-                2,                                // size
-                GL_FLOAT,                         // type
-                GL_FALSE,                         // normalized?
-                0,                                // stride
-                (void*)0                          // array buffer offset
-        );
-
-        // 3rd attribute buffer : normals
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-        glVertexAttribPointer(
-                2,                                // attribute
-                3,                                // size
-                GL_FLOAT,                         // type
-                GL_FALSE,                         // normalized?
-                0,                                // stride
-                (void*)0                          // array buffer offset
-        );
+        glBindVertexArray(VertexArrayID[0]);
 
         // Index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -250,6 +231,8 @@ int main( void )
                 GL_UNSIGNED_SHORT,   // type
                 (void*)0           // element array buffer offset
         );
+
+        glBindVertexArray(0);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
@@ -270,7 +253,7 @@ int main( void )
     glDeleteBuffers(1, &elementbuffer);
     glDeleteProgram(programID);
     glDeleteTextures(1, textures);
-    glDeleteVertexArrays(1, &VertexArrayID);
+    glDeleteVertexArrays(1, VertexArrayID);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
