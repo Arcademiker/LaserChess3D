@@ -42,7 +42,29 @@ add_executable(LaserChess3D
         common/vboindexer.hpp
         common/CView.cpp
         common/CView.h
-        main.cpp CVAA.cpp CVAA.h)
+        CVAA.cpp
+        CVAA.h
+        CMap.cpp
+        CMap.h
+        CUnit.cpp
+        CUnit.h
+        CUnit_AI.cpp
+        CUnit_AI.h
+        units/CDreadnought.cpp
+        units/CDreadnought.h
+        CUnit_Player.cpp
+        CUnit_Player.h
+        units/CGrunt.cpp
+        units/CGrunt.h
+        units/CJumpship.cpp
+        units/CJumpship.h
+        units/CTank.cpp
+        units/CTank.h
+        units/CDrone.cpp
+        units/CDrone.h
+        units/CCommandUnit.cpp
+        units/CCommandUnit.h
+        main.cpp)
 
 
 

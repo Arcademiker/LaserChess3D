@@ -17,6 +17,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <iostream>
+
 
 
 // Include GLEW
@@ -40,206 +42,510 @@ GLFWwindow* window;
 
 #include "CVAA.h"
 
+#include <map>
+
+#include "CMap.h"
+
+
+
+struct graphics_context {
+    double lastTime;
+    int nbFrames;
+    GLuint programID;
+    GLuint TextureID;
+
+    GLuint LightID;
+    GLuint elementbuffer;
+
+    GLuint MatrixID;
+    GLuint ViewMatrixID;
+    GLuint ModelMatrixID;
+
+    glm::mat4 MVP;
+    glm::mat4 ViewMatrix;
+    glm::mat4 ModelMatrix;
+
+    std::vector<unsigned short> indices;
+
+    GLuint VertexArrayID[1];
+    GLuint textures[1];
+};
+
+CMap* generate_map(int level);
+bool gameloop(CMap* map, graphics_context context);
+void drawGame(graphics_context context);
+void print_options(CUnit* unit, CMap* map);
+int user_input(std::map<int,CUnit*>* UMap);
 
 void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex);
 
-
-
-
-int main( void )
+int main()
 {
-    // Initialise GLFW
-    if( !glfwInit() )
-    {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        getchar();
-        return -1;
-    }
+    for(int Level = 1; Level <= 3; ++Level) {
+        /// game logic:
+        CMap* map = generate_map(Level);
+        std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // Open a window and create its OpenGL context
-    window = glfwCreateWindow( 1024, 768, "Tutorial 09 - Loading with AssImp", NULL, NULL);
-    if( window == NULL ){
-        fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-        getchar();
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    // Initialize GLEW
-    glewExperimental = 1; // Needed for core profile
-    if (glewInit() != GLEW_OK) {
-        fprintf(stderr, "Failed to initialize GLEW\n");
-        getchar();
-        glfwTerminate();
-        return -1;
-    }
-
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    // Hide the mouse and enable unlimited mouvement
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // todo: comment out
-
-    // Set the mouse at the center of the screen
-    glfwPollEvents();
-    glfwSetCursorPos(window, 1024/2, 768/2);
-
-    // Dark blue background
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-
-    // Enable depth test
-    glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
-
-    // Cull triangles which normal is not towards the camera
-    glEnable(GL_CULL_FACE);
-
-    /// Create and compile our GLSL program from the shaders
-    CShader *myShader = CShader::createShaderProgram("../StandardShading.vertexshader", nullptr, nullptr, nullptr, "../StandardShading.fragmentshader" );
-    GLuint programID = myShader->getID();
-
-    // Get a handle for our "MVP" uniform
-    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-    GLuint ViewMatrixID = glGetUniformLocation(programID, "V");
-    GLuint ModelMatrixID = glGetUniformLocation(programID, "M");
-
-    // Load the texture
-    //GLuint Texture = loadDDS("../uvmap.DDS");
-
-    GLuint textures[1];
-    glGenTextures(1, textures);
-    loadImage_SOIL(textures,"../units/tank.jpeg",0);
-
-    // Get a handle for our "myTextureSampler" uniform
-    GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
-    // Read our .obj file
-    std::vector<unsigned short> indices;
-    std::vector<glm::vec3> indexed_vertices;
-    std::vector<glm::vec2> indexed_uvs;
-    std::vector<glm::vec3> indexed_normals;
-    bool res = loadAssImp("../units/tank.obj", indices, indexed_vertices, indexed_uvs, indexed_normals);
-
-    // Load it into a VBO
-
-    GLuint VertexArrayID[1];
-    glGenVertexArrays(1, VertexArrayID);
-    glBindVertexArray(VertexArrayID[0]);
-
-    GLuint vertexbuffer;
-    GLuint uvbuffer;
-    GLuint normalbuffer;
-    GLuint elementbuffer;
-
-    CVAA vaa0(vertexbuffer, indexed_vertices, 0,3,0,0); // 1rst attribute buffer : vertices
-    CVAA vaa1(uvbuffer, indexed_uvs,         1,2,0,0);  // 2nd attribute buffer : UVs
-    CVAA vaa2(normalbuffer, indexed_normals, 2,3,0,0);  // 3rd attribute buffer : normals
-    CVAA eaa3(elementbuffer, indices);                  // Generate a buffer for the indices as well
-
-    // Get a handle for our "LightPosition" uniform
-    glUseProgram(programID);
-    GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
-
-    // For speed computation
-    double lastTime = glfwGetTime();
-    int nbFrames = 0;
-    CView view(-30.0f,30.0f,-30.0f,3.14f/4.0f,-3.14f/5.1f);
-
-    // Compute the MVP
-    //glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-    glm::mat4 ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
-    glm::mat4 ViewMatrix = glm::lookAt(
-            view.position,           // Camera is here
-            view.position+view.direction, // and looks here : at the same position, plus "direction"
-            view.up                  // Head is up (set to 0,-1,0 to look upside-down)
-    );
-
-    glm::mat4 ModelMatrix = glm::mat4(1.0);
-    glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-
-    do{
-
-        // Measure speed
-        double currentTime = glfwGetTime();
-        nbFrames++;
-        if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
-            // printf and reset
-            printf("%f ms/frame\n", 1000.0/double(nbFrames));
-            nbFrames = 0;
-            lastTime += 1.0;
+        /// graphics ini:
+        // Initialise GLFW
+        if( !glfwInit() )
+        {
+            fprintf( stderr, "Failed to initialize GLFW\n" );
+            getchar();
+            return -1;
         }
 
-        /// Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwWindowHint(GLFW_SAMPLES, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        /// Use our shader
-        glUseProgram(programID);
+        // Open a window and create its OpenGL context
+        window = glfwCreateWindow( 1024, 768, "Tutorial 09 - Loading with AssImp", NULL, NULL);
+        if( window == NULL ){
+            fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+            getchar();
+            glfwTerminate();
+            return -1;
+        }
+        glfwMakeContextCurrent(window);
+
+        // Initialize GLEW
+        glewExperimental = 1; // Needed for core profile
+        if (glewInit() != GLEW_OK) {
+            fprintf(stderr, "Failed to initialize GLEW\n");
+            getchar();
+            glfwTerminate();
+            return -1;
+        }
+
+        // Ensure we can capture the escape key being pressed below
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+        // Hide the mouse and enable unlimited mouvement
+        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // todo: comment out
+
+        // Set the mouse at the center of the screen
+        glfwPollEvents();
+        glfwSetCursorPos(window, 1024/2, 768/2);
+
+        // Dark blue background
+        glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
+        // Enable depth test
+        glEnable(GL_DEPTH_TEST);
+        // Accept fragment if it closer to the camera than the former one
+        glDepthFunc(GL_LESS);
+
+        // Cull triangles which normal is not towards the camera
+        glEnable(GL_CULL_FACE);
 
 
+        graphics_context context;
 
-        // Send our transformation to the currently bound shader,
-        // in the "MVP" uniform
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-        glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
-        glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+        /// Create and compile our GLSL program from the shaders
+        CShader *myShader = CShader::createShaderProgram("../StandardShading.vertexshader", nullptr, nullptr, nullptr, "../StandardShading.fragmentshader" );
+        context.programID = myShader->getID();
 
-        glm::vec3 lightPos = glm::vec3(4,4,4);
-        glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+        // Get a handle for our "MVP" uniform
+        context.MatrixID = glGetUniformLocation(context.programID, "MVP");
+        context.ViewMatrixID = glGetUniformLocation(context.programID, "V");
+        context.ModelMatrixID = glGetUniformLocation(context.programID, "M");
 
-        // Bind our texture in Texture Unit 0
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
-        // Set our "myTextureSampler" sampler to use Texture Unit 0
-        glUniform1i(TextureID, 0);
+        // Load the texture
+        //GLuint Texture = loadDDS("../uvmap.DDS");
 
+        glGenTextures(1, context.textures);
+        loadImage_SOIL(context.textures,"../units/tank.jpeg",0);
 
-        glBindVertexArray(VertexArrayID[0]);
+        // Get a handle for our "myTextureSampler" uniform
+        context.TextureID  = glGetUniformLocation(context.programID, "myTextureSampler");
 
-        // Index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+        // Read our .obj file
+        context.indices;
+        std::vector<glm::vec3> indexed_vertices;
+        std::vector<glm::vec2> indexed_uvs;
+        std::vector<glm::vec3> indexed_normals;
+        bool res = loadAssImp("../units/tank.obj", context.indices, indexed_vertices, indexed_uvs, indexed_normals);
 
-        // Draw the triangles !
-        glDrawElements(
-                GL_TRIANGLES,      // mode
-                indices.size(),    // count
-                GL_UNSIGNED_SHORT,   // type
-                (void*)0           // element array buffer offset
+        // Load it into a VBO
+
+        glGenVertexArrays(1, context.VertexArrayID);
+        glBindVertexArray(context.VertexArrayID[0]);
+
+        GLuint vertexbuffer;
+        GLuint uvbuffer;
+        GLuint normalbuffer;
+
+        CVAA vaa0(vertexbuffer, indexed_vertices, 0,3,0,0); // 1rst attribute buffer : vertices
+        CVAA vaa1(uvbuffer, indexed_uvs,         1,2,0,0);  // 2nd attribute buffer : UVs
+        CVAA vaa2(normalbuffer, indexed_normals, 2,3,0,0);  // 3rd attribute buffer : normals
+        CVAA eaa3(context.elementbuffer, context.indices);                  // Generate a buffer for the indices as well
+
+        // Get a handle for our "LightPosition" uniform
+        glUseProgram(context.programID);
+        context.LightID = glGetUniformLocation(context.programID, "LightPosition_worldspace");
+
+        // For speed computation
+        context.lastTime = glfwGetTime();
+        context.nbFrames = 0;
+        CView view(-30.0f,30.0f,-30.0f,3.14f/4.0f,-3.14f/5.1f);
+
+        // Compute the MVP
+        // glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
+        glm::mat4 ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
+        context.ViewMatrix = glm::lookAt(
+                view.position,           // Camera is here
+                view.position+view.direction, // and looks here : at the same position, plus "direction"
+                view.up                  // Head is up (set to 0,-1,0 to look upside-down)
         );
 
-        glBindVertexArray(0);
+        context.ModelMatrix = glm::mat4(1.0);
+        context.MVP = ProjectionMatrix * context.ViewMatrix * context.ModelMatrix;
 
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
+        /*
+        do{
+            // Measure speed
+            double currentTime = glfwGetTime();
+            nbFrames++;
+            if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+                // printf and reset
+                printf("%f ms/frame\n", 1000.0/double(nbFrames));
+                nbFrames = 0;
+                lastTime += 1.0;
+            }
 
-        // Swap buffers
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+            /// Clear the screen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    } // Check if the ESC key was pressed or the window was closed
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0 );
+            /// Use the shader
+            glUseProgram(programID);
 
-    // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
-    glDeleteBuffers(1, &normalbuffer);
-    glDeleteBuffers(1, &elementbuffer);
-    glDeleteProgram(programID);
-    glDeleteTextures(1, textures);
-    glDeleteVertexArrays(1, VertexArrayID);
 
-    // Close OpenGL window and terminate GLFW
-    glfwTerminate();
 
+            // Send our transformation to the currently bound shader,
+            // in the "MVP" uniform
+            glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+            glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+            glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+
+            glm::vec3 lightPos = glm::vec3(4,4,4);
+            glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+
+            // Bind our texture in Texture Unit 0
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, textures[0]);
+            // Set our "myTextureSampler" sampler to use Texture Unit 0
+            glUniform1i(TextureID, 0);
+
+
+            glBindVertexArray(VertexArrayID[0]);
+
+            // Index buffer
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+            // Draw the triangles !
+            glDrawElements(
+                    GL_TRIANGLES,      // mode
+                    indices.size(),    // count
+                    GL_UNSIGNED_SHORT, // type
+                    (void*)0           // element array buffer offset
+            );
+
+            glBindVertexArray(0);
+
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+            glDisableVertexAttribArray(2);
+
+            // Swap buffers
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+
+        } // Check if the ESC key was pressed or the window was closed
+        while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+               glfwWindowShouldClose(window) == 0 );
+
+         */
+
+        /// ENTER MAIN GAME LOOP:
+        // check if player may enter next level
+        if(!gameloop(map, context)) {
+            Level--;
+        }
+        delete map;
+
+
+        /// delete grafic buffers:
+        // Cleanup VBO and shader
+        glDeleteBuffers(1, &vertexbuffer);
+        glDeleteBuffers(1, &uvbuffer);
+        glDeleteBuffers(1, &normalbuffer);
+        glDeleteBuffers(1, &context.elementbuffer);
+        glDeleteProgram(context.programID);
+        glDeleteTextures(1, context.textures);
+        glDeleteVertexArrays(1, context.VertexArrayID);
+
+        // Close OpenGL window and terminate GLFW
+        glfwTerminate();
+
+
+    }
     return 0;
+}
+
+bool gameloop(CMap* map, graphics_context context) {
+    int round = 0;
+    do{
+        /// player turn
+        map->listAllUnits();
+        std::cout << std::endl << "******************  ROUND " << round << "  ******************" << std::endl << std::endl;
+        auto* UMap = new std::map<int,CUnit*>;
+        for(auto& U: *map->get_unit_list()) {
+            UMap->insert(U);
+        }
+        int id;
+        CUnit* U;
+        while(!UMap->empty()) {
+            map->print(UMap);
+            drawGame(context);
+            id = user_input(UMap);
+            if(id == 0) {
+                id = UMap->begin()->first;
+                U = UMap->begin()->second;
+            } else {
+                U = UMap->at(id);
+            }
+            U->calc_move_area();
+            print_options(U,map);
+            U->do_move();
+            if(U->calc_attack_options()) {
+                print_options(U,map);
+                U->do_attack();
+            }
+            UMap->erase(id);
+        }
+        delete UMap;
+
+        /// AI turn
+        if(map->get_enemys_list()->empty() || map->get_commandU_counter() <= 0) {
+            map->listAllUnits();
+            drawGame(context);
+            std::cout << std::endl << "!PLAYER WINS!" << std::endl;
+            return true;
+        }
+        auto* EMap = new std::multimap<int,CUnit*>;
+        for(auto& E: *map->get_enemys_list()) {
+            EMap->insert({E.second->get_type(),E.second});
+        }
+        for(auto& E: *EMap) {
+            drawGame(context);
+            E.second->do_move();
+            E.second->do_attack();
+        }
+        delete EMap;
+        if(map->get_unit_list()->empty()) {
+            map->listAllUnits();
+            drawGame(context);
+            std::cout << std::endl << "!AI WINS!" << std::endl;
+            return false;
+        }
+        round++;
+    } while ( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+            glfwWindowShouldClose(window) == 0 ); // Check if the ESC key was pressed or the window was closed
+}
+
+void drawGame(graphics_context context) {
+    // Measure speed
+    double currentTime = glfwGetTime();
+    context.nbFrames++;
+    if ( currentTime - context.lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+        // printf and reset
+        printf("%f ms/frame\n", 1000.0/double(context.nbFrames));
+        context.nbFrames = 0;
+        context.lastTime += 1.0;
+    }
+
+    /// Clear the screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /// Use the shader
+    glUseProgram(context.programID);
+
+
+
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
+    glUniformMatrix4fv(context.MatrixID, 1, GL_FALSE, &context.MVP[0][0]);
+    glUniformMatrix4fv(context.ModelMatrixID, 1, GL_FALSE, &context.ModelMatrix[0][0]);
+    glUniformMatrix4fv(context.ViewMatrixID, 1, GL_FALSE, &context.ViewMatrix[0][0]);
+
+    glm::vec3 lightPos = glm::vec3(4,4,4);
+    glUniform3f(context.LightID, lightPos.x, lightPos.y, lightPos.z);
+
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, context.textures[0]);
+    // Set our "myTextureSampler" sampler to use Texture Unit 0
+    glUniform1i(context.TextureID, 0);
+
+
+    glBindVertexArray(context.VertexArrayID[0]);
+
+    // Index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, context.elementbuffer);
+
+    // Draw the triangles !
+    glDrawElements(
+            GL_TRIANGLES,      // mode
+            context.indices.size(),    // count
+            GL_UNSIGNED_SHORT, // type
+            (void*)0           // element array buffer offset
+    );
+
+    glBindVertexArray(0);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+
+    // Swap buffers
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
+CMap* generate_map(int level) {
+    auto map = new CMap();
+    switch(level){
+        case 1:
+            map->add_unit(4,1,2);
+            map->add_unit(4,1,3);
+            map->add_unit(4,1,4);
+            map->add_unit(4,1,5);
+            map->add_unit(5,0,3);
+            map->add_unit(5,0,4);
+            map->add_unit(6,0,2);
+            map->add_unit(6,0,5);
+
+            map->add_unit(1,7,0);
+            map->add_unit(1,7,7);
+            map->add_unit(1,6,1);
+            map->add_unit(1,6,6);
+            map->add_unit(1,5,2);
+            map->add_unit(1,5,5);
+            map->add_unit(1,4,3);
+            map->add_unit(1,4,4);
+            map->add_unit(2,7,4);
+            map->add_unit(3,7,3);
+
+            break;
+        case 2:
+            map->add_unit(4,1,1);
+            map->add_unit(4,1,3);
+            map->add_unit(4,1,5);
+            map->add_unit(4,1,7);
+            map->add_unit(6,0,0);
+            map->add_unit(6,0,2);
+            map->add_unit(6,0,4);
+            map->add_unit(6,0,6);
+
+            map->add_unit(1,5,0);
+            map->add_unit(1,5,1);
+            map->add_unit(1,5,2);
+            map->add_unit(1,5,4);
+            map->add_unit(1,5,5);
+            map->add_unit(1,5,6);
+            map->add_unit(1,5,7);
+            map->add_unit(3,5,3);
+            map->add_unit(2,4,3);
+            map->add_unit(2,7,0);
+            map->add_unit(2,7,1);
+            map->add_unit(2,7,2);
+            map->add_unit(2,7,3);
+            map->add_unit(2,7,4);
+            map->add_unit(2,7,5);
+            map->add_unit(2,7,6);
+            map->add_unit(2,7,7);
+
+            break;
+        case 3:
+            map->add_unit(4,1,0);
+            map->add_unit(4,1,1);
+            map->add_unit(4,1,2);
+            map->add_unit(4,1,3);
+            map->add_unit(4,1,4);
+            map->add_unit(4,1,5);
+            map->add_unit(4,1,6);
+            map->add_unit(4,1,7);
+            map->add_unit(6,0,0);
+            map->add_unit(5,0,1);
+            map->add_unit(5,0,2);
+            map->add_unit(6,0,3);
+            map->add_unit(6,0,4);
+            map->add_unit(5,0,5);
+            map->add_unit(5,0,6);
+            map->add_unit(6,0,7);
+
+            map->add_unit(1,6,0);
+            map->add_unit(1,6,1);
+            map->add_unit(1,6,2);
+            map->add_unit(1,6,3);
+            map->add_unit(1,6,4);
+            map->add_unit(1,6,5);
+            map->add_unit(1,6,6);
+            map->add_unit(1,6,7);
+            map->add_unit(1,4,2);
+            map->add_unit(1,4,3);
+            map->add_unit(1,4,4);
+            map->add_unit(1,4,5);
+            map->add_unit(1,2,5);
+            map->add_unit(1,5,5);
+            map->add_unit(2,3,5);
+            map->add_unit(2,4,5);
+            map->add_unit(3,7,0);
+            map->add_unit(2,7,1);
+            map->add_unit(2,7,2);
+            map->add_unit(2,7,3);
+            map->add_unit(2,7,4);
+            map->add_unit(2,7,5);
+            map->add_unit(2,7,6);
+            map->add_unit(3,7,7);
+
+            break;
+        default:
+            return nullptr;
+    }
+    return map;
+}
+
+void print_options(CUnit* unit, CMap* map) {
+    std::cout << "   0 1 2 3 4 5 6 7" << std::endl << std::endl;
+    for(int y = 0; y < 8 ; ++y) {
+        std::cout << y << " ";
+        for(int x = 0; x < 8 ; ++x) {
+            if(unit->get_player_optons()->at(y).at(x)) {
+                std::cout << " " << map->get(x,y);
+            }
+            else {
+                std::cout << " X";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+int user_input(std::map<int,CUnit*>* UMap) {
+    ///replace with mouse input
+    int id = -1;
+    while (id != 0 ) {
+        std::cin >> id;
+        for(auto& U: *UMap) {
+            if(id == U.first) {
+                return id;
+            }
+        }
+    }
+    return id;
 }
 
 
