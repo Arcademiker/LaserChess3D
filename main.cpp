@@ -134,33 +134,14 @@ int main( void )
     glBindVertexArray(VertexArrayID[0]);
 
     GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
-
     GLuint uvbuffer;
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_uvs.size() * sizeof(glm::vec2), &indexed_uvs[0], GL_STATIC_DRAW);
-
     GLuint normalbuffer;
-    glGenBuffers(1, &normalbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_normals.size() * sizeof(glm::vec3), &indexed_normals[0], GL_STATIC_DRAW);
-
-    // Generate a buffer for the indices as well
     GLuint elementbuffer;
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);
 
-
-
-
-    CVAA vaa0(vertexbuffer, 0,3,0,0); // 1rst attribute buffer : vertices
-    CVAA vaa1(uvbuffer,     1,2,0,0); // 2nd attribute buffer : UVs
-    CVAA vaa2(normalbuffer, 2,3,0,0); // 3rd attribute buffer : normals
-
+    CVAA vaa0(vertexbuffer, indexed_vertices, 0,3,0,0); // 1rst attribute buffer : vertices
+    CVAA vaa1(uvbuffer, indexed_uvs,         1,2,0,0);  // 2nd attribute buffer : UVs
+    CVAA vaa2(normalbuffer, indexed_normals, 2,3,0,0);  // 3rd attribute buffer : normals
+    CVAA eaa3(elementbuffer, indices);                  // Generate a buffer for the indices as well
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
