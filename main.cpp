@@ -1,5 +1,4 @@
 /* todo:
-// Orthographic projection
 // Projekt Strukturieren
 // Laser Chess einbinden
 // Positionen abfragen + zeichnen
@@ -151,7 +150,19 @@ int main( void )
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
-    CView view(-3.0f,3.0f,-3.0f,3.14f/4.0f,-3.14f/5.0f);
+    CView view(-30.0f,30.0f,-30.0f,3.14f/4.0f,-3.14f/5.0f);
+
+    // Compute the MVP
+    //glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
+    glm::mat4 ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
+    glm::mat4 ViewMatrix = glm::lookAt(
+            view.position,           // Camera is here
+            view.position+view.direction, // and looks here : at the same position, plus "direction"
+            view.up                  // Head is up (set to 0,-1,0 to look upside-down)
+    );
+
+    glm::mat4 ModelMatrix = glm::mat4(1.0);
+    glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
     do{
 
@@ -171,16 +182,7 @@ int main( void )
         /// Use our shader
         glUseProgram(programID);
 
-        // Compute the MVP
-        glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);;
-        glm::mat4 ViewMatrix = glm::lookAt(
-                view.position,           // Camera is here
-                view.position+view.direction, // and looks here : at the same position, plus "direction"
-                view.up                  // Head is up (set to 0,-1,0 to look upside-down)
-        );
 
-        glm::mat4 ModelMatrix = glm::mat4(1.0);
-        glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
         // Send our transformation to the currently bound shader,
         // in the "MVP" uniform
