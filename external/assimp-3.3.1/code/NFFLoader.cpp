@@ -1012,7 +1012,7 @@ void NFFImporter::InternReadFile( const std::string& pFile,
                 AI_NFF_PARSE_TRIPLE(camUp);
                 hasCam = true;
             }
-            // 'angle' - (half?) camera field of view
+            // 'angle' - (half?) camera field of CView
             else if (TokenMatch(sz,"angle",5))
             {
                 AI_NFF_PARSE_FLOAT(angle);

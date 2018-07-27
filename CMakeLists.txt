@@ -42,7 +42,7 @@ add_executable(LaserChess3D
         common/vboindexer.hpp
         common/texture.hpp
         common/texture.cpp
-        main.cpp  )
+        main.cpp common/CView.cpp common/CView.h)
 
 
 

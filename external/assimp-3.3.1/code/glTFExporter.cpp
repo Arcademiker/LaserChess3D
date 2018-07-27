@@ -150,7 +150,7 @@ inline Ref<Accessor> ExportData(Asset& a, std::string& meshName, Ref<Buffer>& bu
     buffer->Grow(length);
 
     // bufferView
-    Ref<BufferView> bv = a.bufferViews.Create(a.FindUniqueID(meshName, "view"));
+    Ref<BufferView> bv = a.bufferViews.Create(a.FindUniqueID(meshName, "CView"));
     bv->buffer = buffer;
     bv->byteOffset = unsigned(offset);
     bv->byteLength = length; //! The target that the WebGL buffer should be bound to.

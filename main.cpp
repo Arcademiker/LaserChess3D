@@ -1,3 +1,19 @@
+/* todo:
+// Orthographic projection
+// Projekt Strukturieren
+// Laser Chess einbinden
+// Positionen abfragen + zeichnen
+// Schachbrett
+// Maus Steuerung (hightlighting)
+// Alle 6 modelle
+// Licht + texturen
+// Bewegungspfade animieren
+// HP darstellen
+// Schüsse animieren
+// Schaden animieren
+// You win loose text?
+*/
+
 // Include standard headers
 #include <cstdio>
 #include <cstdlib>
@@ -21,33 +37,8 @@ GLFWwindow* window;
 #include "common/objloader.hpp"
 #include "common/texture.hpp"
 #include "common/vboindexer.hpp"
+#include "common/CView.h"
 
-float FoV = 45.0f;
-// Initial position : on +Z
-glm::vec3 position = glm::vec3( -3, 3, -3 );
-
-
-// Initial horizontal angle : toward -Z
-float horizontalAngle = 3.14f/4.0f; //3.14f/4.0f*3.0f; //+2.3f;
-// Initial vertical angle : none
-float verticalAngle = -3.14f/5.0f; //0.7f;
-
-// Direction : Spherical coordinates to Cartesian coordinates conversion
-glm::vec3 direction(
-        cos(verticalAngle) * sin(horizontalAngle),
-        sin(verticalAngle),
-        cos(verticalAngle) * cos(horizontalAngle)
-);
-
-// Right vector
-glm::vec3 right = glm::vec3(
-        sin(horizontalAngle - 3.14f/2.0f),
-        0,
-        cos(horizontalAngle - 3.14f/2.0f)
-);
-
-// Up vector
-glm::vec3 up = glm::cross( right, direction );
 
 int main( void )
 {
@@ -160,6 +151,7 @@ int main( void )
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
+    CView view(-3.0f,3.0f,-3.0f,3.14f/4.0f,-3.14f/5.0f);
 
     do{
 
@@ -180,11 +172,11 @@ int main( void )
         glUseProgram(programID);
 
         // Compute the MVP
-        glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);;
+        glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);;
         glm::mat4 ViewMatrix = glm::lookAt(
-                position,           // Camera is here
-                position+direction, // and looks here : at the same position, plus "direction"
-                up                  // Head is up (set to 0,-1,0 to look upside-down)
+                view.position,           // Camera is here
+                view.position+view.direction, // and looks here : at the same position, plus "direction"
+                view.up                  // Head is up (set to 0,-1,0 to look upside-down)
         );
 
         glm::mat4 ModelMatrix = glm::mat4(1.0);
