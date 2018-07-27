@@ -40,10 +40,10 @@ add_executable(LaserChess3D
         common/objloader.cpp
         common/vboindexer.cpp
         common/vboindexer.hpp
-        common/texture.hpp
-        common/texture.cpp
-        main.cpp common/CView.cpp common/CView.h)
+        common/CView.cpp
+        common/CView.h
+        main.cpp)
 
 
 
-target_link_libraries(LaserChess3D ${ALL_LIBS} assimp)
+target_link_libraries(LaserChess3D ${ALL_LIBS} assimp libSOIL.a)

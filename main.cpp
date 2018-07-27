@@ -30,14 +30,15 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-
+// texture loading
+#include "SOIL.h"
 
 #include "common/Shader.h"
 #include "common/objloader.hpp"
-#include "common/texture.hpp"
 #include "common/vboindexer.hpp"
 #include "common/CView.h"
 
+void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex);
 
 int main( void )
 {
@@ -108,7 +109,11 @@ int main( void )
     GLuint ModelMatrixID = glGetUniformLocation(programID, "M");
 
     // Load the texture
-    GLuint Texture = loadDDS("../uvmap.DDS");
+    //GLuint Texture = loadDDS("../uvmap.DDS");
+
+    GLuint textures[1];
+    glGenTextures(1, textures);
+    loadImage_SOIL(textures,"../units/tank.jpeg",0);
 
     // Get a handle for our "myTextureSampler" uniform
     GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
@@ -150,11 +155,11 @@ int main( void )
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
-    CView view(-30.0f,30.0f,-30.0f,3.14f/4.0f,-3.14f/5.0f);
+    CView view(-30.0f,30.0f,-30.0f,3.14f/4.0f,-3.14f/5.1f);
 
     // Compute the MVP
     //glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-    glm::mat4 ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
+    glm::mat4 ProjectionMatrix =  glm::ortho(1.0f*-4.0f/3.0f,1.0f*4.0f/3.0f,-1.0f,1.0f,0.1f, 100.0f);
     glm::mat4 ViewMatrix = glm::lookAt(
             view.position,           // Camera is here
             view.position+view.direction, // and looks here : at the same position, plus "direction"
@@ -195,7 +200,7 @@ int main( void )
 
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, Texture);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
         // Set our "myTextureSampler" sampler to use Texture Unit 0
         glUniform1i(TextureID, 0);
 
@@ -264,7 +269,7 @@ int main( void )
     glDeleteBuffers(1, &normalbuffer);
     glDeleteBuffers(1, &elementbuffer);
     glDeleteProgram(programID);
-    glDeleteTextures(1, &Texture);
+    glDeleteTextures(1, textures);
     glDeleteVertexArrays(1, &VertexArrayID);
 
     // Close OpenGL window and terminate GLFW
@@ -274,3 +279,32 @@ int main( void )
 }
 
 
+void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex) {
+
+    int width, height;
+    unsigned char* image;
+
+    glActiveTexture(GL_TEXTURE0 + texIndex);
+    glBindTexture(GL_TEXTURE_2D, textures[texIndex]);
+
+    image = SOIL_load_image(imagepath, &width, &height, 0, SOIL_LOAD_RGB);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    if (0 == image)
+    {
+        printf("SOIL loading error: '%s'\n", SOIL_last_result());
+    }
+    SOIL_free_image_data(image);
+    //glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"), 0);
+
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_REPEAT, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_REPEAT, GL_CLAMP_TO_EDGE); //correct
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+}
