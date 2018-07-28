@@ -102,9 +102,9 @@ int main()
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Open a window and create its OpenGL context
-        window = glfwCreateWindow( 1024, 768, "Tutorial 09 - Loading with AssImp", NULL, NULL);
+        window = glfwCreateWindow( 1024, 768, "LASER CHESS", NULL, NULL);
         if( window == NULL ){
-            fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+            fprintf( stderr, "Failed to open GLFW window. If you have an old Intel GPU, they are not 3.3 compatible.\n" );
             getchar();
             glfwTerminate();
             return -1;
@@ -415,7 +415,7 @@ void drawGame(graphics_context context) {
 }
 
 CMap* generate_map(int level) {
-    auto map = new CMap();
+    auto map = new CMap(window);
     switch(level){
         case 1:
             map->add_unit(4,1,2);
@@ -534,11 +534,65 @@ void print_options(CUnit* unit, CMap* map) {
     }
 }
 
+/*
 int user_input(std::map<int,CUnit*>* UMap) {
     ///replace with mouse input
     int id = -1;
     while (id != 0 ) {
         std::cin >> id;
+        for(auto& U: *UMap) {
+            if(id == U.first) {
+                return id;
+            }
+        }
+    }
+    return id;
+}
+*/
+
+int user_input(std::map<int,CUnit*>* UMap) {
+    int id = -1;
+    while (id != 0 &&  glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0) {
+        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
+            id = 0;
+            std::cout << 0 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+            id = 1;
+            std::cout << 1 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+            id = 2;
+            std::cout << 2 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+            id = 3;
+            std::cout << 3 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+            id = 4;
+            std::cout << 4 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+            id = 5;
+            std::cout << 5 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+            id = 6;
+            std::cout << 6 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+            id = 7;
+            std::cout << 7 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+            id = 8;
+            std::cout << 8 << std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+            id = 9;
+            std::cout << 9 << std::endl;
+        }
         for(auto& U: *UMap) {
             if(id == U.first) {
                 return id;

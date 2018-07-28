@@ -2,6 +2,7 @@
 // Created by arcademiker on 20.07.18.
 //
 
+
 #include "CMap.h"
 #include "CUnit_AI.h"
 #include "CUnit_Player.h"
@@ -13,16 +14,16 @@
 #include "units/CCommandUnit.h"
 
 
-
 void CMap::set(int x, int y, int id) {
     this->grid[y][x] = id;
 }
 
-CMap::CMap() {
+CMap::CMap(GLFWwindow* window) {
     this->unitCounter = 0;
     this->enemyCounter = 0;
     this->commandU_counter = 0;
     this->grid = std::vector<std::vector<int>>(this->size, std::vector<int>(this->size, 0));
+    this->window = window;
 }
 
 CMap::~CMap() {
@@ -211,6 +212,10 @@ void CMap::listAllUnits() {
                   << " - hp = " << U.second->get_health() << std::endl;
     }
     std::cout << std::endl;
+}
+
+GLFWwindow *CMap::get_window() {
+    return this->window;
 }
 
 

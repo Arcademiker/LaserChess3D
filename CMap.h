@@ -5,6 +5,9 @@
 #ifndef LASERCHESS_CMAP_H
 #define LASERCHESS_CMAP_H
 
+
+// Include GLFW
+#include <GLFW/glfw3.h>
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -13,9 +16,12 @@
 #include "CUnit.h"
 
 
+
+
 class CUnit;
 class CMap {
 private:
+    GLFWwindow* window;
     unsigned int size = 8;
     std::vector<std::vector<int>> grid;
     std::unordered_map<int,CUnit*> unit_list;
@@ -28,7 +34,7 @@ private:
     void set(int x, int y, int id);
 
 public:
-    CMap();
+    CMap(GLFWwindow* window);
     ~CMap();
     unsigned int get_size();
     int get_commandU_counter();
@@ -45,6 +51,7 @@ public:
     void print();
     void print(std::map<int,CUnit*>* UMap);
     void listAllUnits();
+    GLFWwindow* get_window();
 };
 
 
