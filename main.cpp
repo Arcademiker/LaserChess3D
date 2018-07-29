@@ -131,14 +131,16 @@ int main()
     context.ModelMatrixID = glGetUniformLocation(context.programID, "M");
 
     // Load the texture
-    //GLuint Texture = loadDDS("../uvmap.DDS");
-
     glGenTextures(1, context.textures);
     loadImage_SOIL(context.textures,"../units/tank.jpeg",0);
 
     // Get a handle for our "myTextureSampler" uniform
     context.TextureID  = glGetUniformLocation(context.programID, "myTextureSampler");
 
+    glGenVertexArrays(2, context.VertexArrayID);
+
+    /// unit0
+    glBindVertexArray(context.VertexArrayID[0]);
     // Read our .obj file
     context.indices;
     std::vector<glm::vec3> indexed_vertices;
@@ -147,10 +149,6 @@ int main()
     bool res = loadAssImp("../units/tank.obj", context.indices, indexed_vertices, indexed_uvs, indexed_normals);
 
     // Load it into a VBO
-
-    glGenVertexArrays(1, context.VertexArrayID);
-    glBindVertexArray(context.VertexArrayID[0]);
-
     GLuint vertexbuffer;
     GLuint uvbuffer;
     GLuint normalbuffer;
@@ -158,7 +156,27 @@ int main()
     CVAA vaa0(vertexbuffer, indexed_vertices, 0,3,0,0); // 1rst attribute buffer : vertices
     CVAA vaa1(uvbuffer, indexed_uvs,         1,2,0,0);  // 2nd attribute buffer : UVs
     CVAA vaa2(normalbuffer, indexed_normals, 2,3,0,0);  // 3rd attribute buffer : normals
-    CVAA eaa3(context.elementbuffer, context.indices);                  // Generate a buffer for the indices as well
+    CVAA eaa3(context.elementbuffer, context.indices);  // Generate a buffer for the indices as well
+
+    /// unit1
+    glBindVertexArray(context.VertexArrayID[1]);
+    // Read our .obj file
+    context.indices1;
+    std::vector<glm::vec3> indexed_vertices1;
+    std::vector<glm::vec2> indexed_uvs1;
+    std::vector<glm::vec3> indexed_normals1;
+    bool res1 = loadAssImp("../units/cube.obj", context.indices1, indexed_vertices1, indexed_uvs1, indexed_normals1);
+
+    // Load it into a VBO
+    GLuint vertexbuffer1;
+    GLuint uvbuffer1;
+    GLuint normalbuffer1;
+
+    CVAA vaa10(vertexbuffer1, indexed_vertices1, 0,3,0,0); // 1rst attribute buffer : vertices
+    CVAA vaa11(uvbuffer1, indexed_uvs1,         1,2,0,0);  // 2nd attribute buffer : UVs
+    CVAA vaa12(normalbuffer1, indexed_normals1, 2,3,0,0);  // 3rd attribute buffer : normals
+    CVAA eaa13(context.elementbuffer1, context.indices1);  // Generate a buffer for the indices as well
+
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(context.programID);
@@ -171,16 +189,16 @@ int main()
 
     // Compute the MVP
     // glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-    glm::mat4 ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
+    context.ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
     context.ViewMatrix = glm::lookAt(
             view.position,           // Camera is here
             view.position+view.direction, // and looks here : at the same position, plus "direction"
             view.up                  // Head is up (set to 0,-1,0 to look upside-down)
     );
 
-    context.ModelMatrix = glm::mat4(1.0);
-    context.MVP = ProjectionMatrix * context.ViewMatrix * context.ModelMatrix;
 
+
+    /// start game:
     for(int Level = 1; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
@@ -205,9 +223,13 @@ int main()
     glDeleteBuffers(1, &uvbuffer);
     glDeleteBuffers(1, &normalbuffer);
     glDeleteBuffers(1, &context.elementbuffer);
+    glDeleteBuffers(1, &vertexbuffer1);
+    glDeleteBuffers(1, &uvbuffer1);
+    glDeleteBuffers(1, &normalbuffer1);
+    glDeleteBuffers(1, &context.elementbuffer1);
     glDeleteProgram(context.programID);
     glDeleteTextures(1, context.textures);
-    glDeleteVertexArrays(1, context.VertexArrayID);
+    glDeleteVertexArrays(2, context.VertexArrayID);
 
     // Close OpenGL context.window and terminate GLFW
     glfwTerminate();

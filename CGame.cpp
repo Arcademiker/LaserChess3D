@@ -175,7 +175,11 @@ void CGame::drawGame() {
     /// Use the shader
     glUseProgram(this->context->programID);
 
+    /// unit 1
+    glBindVertexArray(this->context->VertexArrayID[0]);
 
+    this->context->ModelMatrix = glm::translate(glm::mat4(1.0),glm::vec3(1,0,2)) ;//glm::mat4(1.0);
+    this->context->MVP = this->context->ProjectionMatrix *  this->context->ViewMatrix *  this->context->ModelMatrix;
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
@@ -193,7 +197,7 @@ void CGame::drawGame() {
     glUniform1i(this->context->TextureID, 0);
 
 
-    glBindVertexArray(this->context->VertexArrayID[0]);
+    //glBindVertexArray(this->context->VertexArrayID[0]);
 
     // Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer);
@@ -207,6 +211,47 @@ void CGame::drawGame() {
     );
 
     glBindVertexArray(0);
+
+    /// unit 2
+    glBindVertexArray(this->context->VertexArrayID[1]);
+
+    this->context->ModelMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0,0,0)) ;//glm::mat4(1.0);
+    this->context->MVP = this->context->ProjectionMatrix *  this->context->ViewMatrix *  this->context->ModelMatrix;
+
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
+    glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
+    glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
+    glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
+
+    lightPos = glm::vec3(4,4,4);
+    glUniform3f(this->context->LightID, lightPos.x, lightPos.y, lightPos.z);
+
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->context->textures[0]);
+    // Set our "myTextureSampler" sampler to use Texture Unit 0
+    glUniform1i(this->context->TextureID, 0);
+
+
+    //glBindVertexArray(this->context->VertexArrayID[0]);
+
+    // Index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer1);
+
+    // Draw the triangles !
+    glDrawElements(
+            GL_TRIANGLES,      // mode
+            this->context->indices1.size(),    // count
+            GL_UNSIGNED_SHORT, // type
+            (void*)0           // element array buffer offset
+    );
+
+    glBindVertexArray(0);
+
+
+
+
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
