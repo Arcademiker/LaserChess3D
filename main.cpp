@@ -26,7 +26,7 @@
 
 // Include GLFW
 #include <GLFW/glfw3.h>
-GLFWwindow* window;
+
 
 // Include GLM
 #include <glm/glm.hpp>
@@ -45,45 +45,23 @@ GLFWwindow* window;
 #include <map>
 
 #include "CMap.h"
+#include "CGame.h"
 
 
 
-struct graphics_context {
-    double lastTime;
-    int nbFrames;
-    GLuint programID;
-    GLuint TextureID;
 
-    GLuint LightID;
-    GLuint elementbuffer;
-
-    GLuint MatrixID;
-    GLuint ViewMatrixID;
-    GLuint ModelMatrixID;
-
-    glm::mat4 MVP;
-    glm::mat4 ViewMatrix;
-    glm::mat4 ModelMatrix;
-
-    std::vector<unsigned short> indices;
-
-    GLuint VertexArrayID[1];
-    GLuint textures[1];
-};
-
-CMap* generate_map(int level);
-bool gameloop(CMap* map, graphics_context context);
-void drawGame(graphics_context context);
-void print_options(CUnit* unit, CMap* map);
-int user_input(std::map<int,CUnit*>* UMap);
-
+CMap* generate_map(int level, GLFWwindow* window);
+//void print_options(CUnit* unit, CMap* map);
 void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex);
 
 int main()
 {
     for(int Level = 1; Level <= 3; ++Level) {
+        // creat graphic context;
+        graphics_context context;
+
         /// game logic:
-        CMap* map = generate_map(Level);
+        CMap* map = generate_map(Level,context.window);
         std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
 
         /// graphics ini:
@@ -101,15 +79,17 @@ int main()
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        // Open a window and create its OpenGL context
-        window = glfwCreateWindow( 1024, 768, "LASER CHESS", NULL, NULL);
-        if( window == NULL ){
-            fprintf( stderr, "Failed to open GLFW window. If you have an old Intel GPU, they are not 3.3 compatible.\n" );
+
+
+        // Open a context.window and create its OpenGL context
+        context.window = glfwCreateWindow( 1024, 768, "LASER CHESS", NULL, NULL);
+        if( context.window == NULL ){
+            fprintf( stderr, "Failed to open GLFW context.window. If you have an old Intel GPU, they are not 3.3 compatible.\n" );
             getchar();
             glfwTerminate();
             return -1;
         }
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(context.window);
 
         // Initialize GLEW
         glewExperimental = 1; // Needed for core profile
@@ -121,13 +101,13 @@ int main()
         }
 
         // Ensure we can capture the escape key being pressed below
-        glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+        glfwSetInputMode(context.window, GLFW_STICKY_KEYS, GL_TRUE);
         // Hide the mouse and enable unlimited mouvement
-        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // todo: comment out
+        //glfwSetInputMode(context.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // todo: comment out
 
         // Set the mouse at the center of the screen
         glfwPollEvents();
-        glfwSetCursorPos(window, 1024/2, 768/2);
+        glfwSetCursorPos(context.window, 1024/2, 768/2);
 
         // Dark blue background
         glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -141,7 +121,7 @@ int main()
         glEnable(GL_CULL_FACE);
 
 
-        graphics_context context;
+
 
         /// Create and compile our GLSL program from the shaders
         CShader *myShader = CShader::createShaderProgram("../StandardShading.vertexshader", nullptr, nullptr, nullptr, "../StandardShading.fragmentshader" );
@@ -203,7 +183,7 @@ int main()
         context.ModelMatrix = glm::mat4(1.0);
         context.MVP = ProjectionMatrix * context.ViewMatrix * context.ModelMatrix;
 
-        /*
+        /*void drawGame(graphics_context context)
         do{
             // Measure speed
             double currentTime = glfwGetTime();
@@ -259,18 +239,18 @@ int main()
             glDisableVertexAttribArray(2);
 
             // Swap buffers
-            glfwSwapBuffers(window);
+            glfwSwapBuffers(context.window);
             glfwPollEvents();
 
-        } // Check if the ESC key was pressed or the window was closed
-        while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-               glfwWindowShouldClose(window) == 0 );
+        } // Check if the ESC key was pressed or the context.window was closed
+        while( glfwGetKey(context.window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+               glfwWindowShouldClose(context.window) == 0 );
 
-         */
-
-        /// ENTER MAIN GAME LOOP:
+        */ /// ENTER MAIN GAME LOOP:
         // check if player may enter next level
-        if(!gameloop(map, context)) {
+
+        CGame game(map,  &context);
+        if(!game.gameloop()) {
             Level--;
         }
         delete map;
@@ -286,7 +266,7 @@ int main()
         glDeleteTextures(1, context.textures);
         glDeleteVertexArrays(1, context.VertexArrayID);
 
-        // Close OpenGL window and terminate GLFW
+        // Close OpenGL context.window and terminate GLFW
         glfwTerminate();
 
 
@@ -294,12 +274,14 @@ int main()
     return 0;
 }
 
+/*
 bool gameloop(CMap* map, graphics_context context) {
     int round = 0;
     do{
         /// player turn
         map->listAllUnits();
         std::cout << std::endl << "******************  ROUND " << round << "  ******************" << std::endl << std::endl;
+        ///0
         auto* UMap = new std::map<int,CUnit*>;
         for(auto& U: *map->get_unit_list()) {
             UMap->insert(U);
@@ -309,6 +291,7 @@ bool gameloop(CMap* map, graphics_context context) {
         while(!UMap->empty()) {
             map->print(UMap);
             drawGame(context);
+            ///--> 1 u
             id = user_input(UMap);
             if(id == 0) {
                 id = UMap->begin()->first;
@@ -316,18 +299,25 @@ bool gameloop(CMap* map, graphics_context context) {
             } else {
                 U = UMap->at(id);
             }
+            ///2
             U->calc_move_area();
             print_options(U,map);
+            ///3 u
             U->do_move();
+            ///4
             if(U->calc_attack_options()) {
                 print_options(U,map);
+                ///5 u
                 U->do_attack();
             }
+            ///6--> 1
             UMap->erase(id);
         }
+        /// 7
         delete UMap;
 
         /// AI turn
+
         if(map->get_enemys_list()->empty() || map->get_commandU_counter() <= 0) {
             map->listAllUnits();
             drawGame(context);
@@ -340,9 +330,11 @@ bool gameloop(CMap* map, graphics_context context) {
         }
         for(auto& E: *EMap) {
             drawGame(context);
+            ///8-->8
             E.second->do_move();
             E.second->do_attack();
         }
+        /// 9
         delete EMap;
         if(map->get_unit_list()->empty()) {
             map->listAllUnits();
@@ -351,10 +343,12 @@ bool gameloop(CMap* map, graphics_context context) {
             return false;
         }
         round++;
-    } while ( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-            glfwWindowShouldClose(window) == 0 ); // Check if the ESC key was pressed or the window was closed
+    } while ( glfwGetKey(context.window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+            glfwWindowShouldClose(context.window) == 0 ); // Check if the ESC key was pressed or the context.window was closed
 }
+*/
 
+/*
 void drawGame(graphics_context context) {
     // Measure speed
     double currentTime = glfwGetTime();
@@ -410,11 +404,12 @@ void drawGame(graphics_context context) {
     glDisableVertexAttribArray(2);
 
     // Swap buffers
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(context.window);
     glfwPollEvents();
 }
+*/
 
-CMap* generate_map(int level) {
+CMap* generate_map(int level, GLFWwindow* window) {
     auto map = new CMap(window);
     switch(level){
         case 1:
@@ -518,6 +513,7 @@ CMap* generate_map(int level) {
     return map;
 }
 
+/*
 void print_options(CUnit* unit, CMap* map) {
     std::cout << "   0 1 2 3 4 5 6 7" << std::endl << std::endl;
     for(int y = 0; y < 8 ; ++y) {
@@ -533,6 +529,7 @@ void print_options(CUnit* unit, CMap* map) {
         std::cout << std::endl;
     }
 }
+*/
 
 /*
 int user_input(std::map<int,CUnit*>* UMap) {
@@ -550,46 +547,47 @@ int user_input(std::map<int,CUnit*>* UMap) {
 }
 */
 
+/*
 int user_input(std::map<int,CUnit*>* UMap) {
     int id = -1;
-    while (id != 0 &&  glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0) {
-        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
+    while (id != 0 &&  glfwGetKey(context.window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(context.window) == 0) {
+        if (glfwGetKey(context.window, GLFW_KEY_0) == GLFW_PRESS) {
             id = 0;
             std::cout << 0 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_1) == GLFW_PRESS) {
             id = 1;
             std::cout << 1 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_2) == GLFW_PRESS) {
             id = 2;
             std::cout << 2 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_3) == GLFW_PRESS) {
             id = 3;
             std::cout << 3 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_4) == GLFW_PRESS) {
             id = 4;
             std::cout << 4 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_5) == GLFW_PRESS) {
             id = 5;
             std::cout << 5 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_6) == GLFW_PRESS) {
             id = 6;
             std::cout << 6 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_7) == GLFW_PRESS) {
             id = 7;
             std::cout << 7 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_8) == GLFW_PRESS) {
             id = 8;
             std::cout << 8 << std::endl;
         }
-        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+        if (glfwGetKey(context.window, GLFW_KEY_9) == GLFW_PRESS) {
             id = 9;
             std::cout << 9 << std::endl;
         }
@@ -601,7 +599,7 @@ int user_input(std::map<int,CUnit*>* UMap) {
     }
     return id;
 }
-
+*/
 
 void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex) {
 

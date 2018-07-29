@@ -21,7 +21,7 @@
 class CUnit;
 class CMap {
 private:
-    GLFWwindow* window;
+
     unsigned int size = 8;
     std::vector<std::vector<int>> grid;
     std::unordered_map<int,CUnit*> unit_list;
@@ -51,7 +51,7 @@ public:
     void print();
     void print(std::map<int,CUnit*>* UMap);
     void listAllUnits();
-    GLFWwindow* get_window();
+    GLFWwindow* window;
 };
 
 

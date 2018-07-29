@@ -17,14 +17,16 @@ class CUnit_Player : public CUnit{
 protected:
     std::vector<std::vector<bool>> player_options;
     std::vector<std::vector<bool>> attack_range;
-    GLFWwindow* window;
+    int xy;
+    int do_x;
+    int do_y;
 public:
     CUnit_Player(int typ, int x, int y, CMap &map);
     bool attack(int to_x, int to_y) override;
     bool attack(int target_id) override;
     std::vector<std::vector<bool>>* get_player_optons() override;
     std::vector<std::vector<bool>>* get_attack_range() override;
-    std::pair<int,int> user_input();
+    bool user_input();
 };
 
 

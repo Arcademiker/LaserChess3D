@@ -92,27 +92,23 @@ void CGrunt::calc_attack_area() {
     }
 }
 
-void CGrunt::do_move() {
+bool CGrunt::do_move() {
     /// move
-    //this->calc_move_area();
-
-    std::pair<int,int> do_point;
-    do {
-        do_point = this->user_input();
-    } while (!this->player_options[do_point.second][do_point.first]);
-
-    this->move(do_point.first,do_point.second);
+    if(!this->user_input() && !this->player_options[this->do_y][this->do_x]) {
+        return false;
+    } else {
+        this->move(this->do_x, this->do_y);
+        return true;
+    }
 }
 
-void CGrunt::do_attack() {
+bool CGrunt::do_attack() {
     /// attack
-    std::pair<int,int> do_point;
-    //if(this->calc_attack_options()) {
-        do {
-            do_point = this->user_input();
-        } while (!this->player_options[do_point.second][do_point.first] && !(do_point.first == this->x && do_point.second == this->y));
-
-        this->attack(do_point.first, do_point.second);
-    //}
+    if(!this->user_input() && !this->player_options[this->do_y][this->do_x] && !(this->do_x == this->x && this->do_y == this->y)) {
+        return false;
+    } else {
+        this->attack(this->do_x, this->do_y);
+        return true;
+    }
 }
 

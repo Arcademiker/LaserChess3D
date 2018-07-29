@@ -13,8 +13,8 @@ public:
     void calc_move_area() override;
     bool calc_attack_options() override;
     void calc_attack_area() override;
-    void do_move() override;
-    void do_attack() override;
+    bool do_move() override;
+    bool do_attack() override;
 
 };
 

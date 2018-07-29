@@ -18,7 +18,7 @@ void CDrone::calc_attack_area() {
 }
 
 
-void CDrone::do_move() {
+bool CDrone::do_move() {
     if(this->x == 0) {
         this->map->get_unit_list()->clear();
     }
@@ -26,9 +26,10 @@ void CDrone::do_move() {
         ///move:
         this->move(this->x-1, this->y);
     }
+    return true;
 }
 
-void CDrone::do_attack() {
+bool CDrone::do_attack() {
     ///attack:
     int target1_id = this->shot(-1,-1);
     int target2_id = this->shot(-1,-1);
@@ -50,4 +51,5 @@ void CDrone::do_attack() {
     else if(target2_id && this->map->get_unit(target1_id)->get_type() > 3) {
         this->attack(target2_id);
     }
+    return true;
 }

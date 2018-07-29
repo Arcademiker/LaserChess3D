@@ -19,11 +19,11 @@ void CMap::set(int x, int y, int id) {
 }
 
 CMap::CMap(GLFWwindow* window) {
+    this->window = window;
     this->unitCounter = 0;
     this->enemyCounter = 0;
     this->commandU_counter = 0;
     this->grid = std::vector<std::vector<int>>(this->size, std::vector<int>(this->size, 0));
-    this->window = window;
 }
 
 CMap::~CMap() {
@@ -212,10 +212,6 @@ void CMap::listAllUnits() {
                   << " - hp = " << U.second->get_health() << std::endl;
     }
     std::cout << std::endl;
-}
-
-GLFWwindow *CMap::get_window() {
-    return this->window;
 }
 
 

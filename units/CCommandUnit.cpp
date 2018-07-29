@@ -19,7 +19,7 @@ void CCommandUnit::calc_attack_area() {
 }
 
 
-void CCommandUnit::do_move() {
+bool CCommandUnit::do_move() {
     this->evasion_area.clear();
     this->evasion_area = std::vector<int>(3,0);
 
@@ -58,10 +58,10 @@ void CCommandUnit::do_move() {
     else {
         this->move(this->x,this->y);
     }
-
+    return true;
 }
 
-void CCommandUnit::do_attack() {
-
+bool CCommandUnit::do_attack() {
+    return true;
 }
 
