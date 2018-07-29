@@ -64,7 +64,9 @@ add_executable(LaserChess3D
         units/CDrone.h
         units/CCommandUnit.cpp
         units/CCommandUnit.h
-        main.cpp CGame.cpp CGame.h)
+        CGame.cpp
+        CGame.h
+        main.cpp)
 
 
 
