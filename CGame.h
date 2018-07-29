@@ -53,7 +53,7 @@ private:
 public:
     CGame(CMap* map, graphics_context* context);
     ~CGame();
-    bool gameloop();
+    int gameloop();
     int logic_step(int step);
     void drawGame();
     bool user_input();

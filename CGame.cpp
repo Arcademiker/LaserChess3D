@@ -17,15 +17,20 @@ CGame::~CGame() {
     delete EMap;
 }
 
-bool CGame::gameloop() {
+int CGame::gameloop() {
     int step = 0;
     do {
         step = this->logic_step(step);
         this->drawGame();
-    } while ( glfwGetKey(this->context->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+    } while ( step != -1 && step != -2 && glfwGetKey(this->context->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
               glfwWindowShouldClose(this->context->window) == 0 ); // Check if the ESC key was pressed or the->window was closed
 
-    return step == -2;
+    if(step == -1) {
+        return -1;
+    } else if(step == -2) {
+        return 0;
+    }
+    return 1;
 }
 
 int CGame::logic_step(int step) {
