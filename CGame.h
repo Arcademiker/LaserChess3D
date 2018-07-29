@@ -48,6 +48,7 @@ private:
     std::multimap<int,CUnit*>* EMap;
     int round;
     int id;
+    int oldState;
     CMap* map;
 public:
     CGame(CMap* map, graphics_context* context);
@@ -55,7 +56,8 @@ public:
     bool gameloop();
     int logic_step(int step);
     void drawGame();
-    int user_input();
+    bool user_input();
+    void print_options(CUnit* unit);
 };
 
 

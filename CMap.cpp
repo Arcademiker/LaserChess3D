@@ -18,8 +18,7 @@ void CMap::set(int x, int y, int id) {
     this->grid[y][x] = id;
 }
 
-CMap::CMap(GLFWwindow* window) {
-    this->window = window;
+CMap::CMap() {
     this->unitCounter = 0;
     this->enemyCounter = 0;
     this->commandU_counter = 0;

@@ -34,7 +34,7 @@ private:
     void set(int x, int y, int id);
 
 public:
-    CMap(GLFWwindow* window);
+    CMap();
     ~CMap();
     unsigned int get_size();
     int get_commandU_counter();
@@ -51,7 +51,6 @@ public:
     void print();
     void print(std::map<int,CUnit*>* UMap);
     void listAllUnits();
-    GLFWwindow* window;
 };
 
 

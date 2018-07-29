@@ -43,7 +43,7 @@ void CDreadnought::calc_attack_area() {
 
 }
 
-bool CDreadnought::do_move() {
+bool CDreadnought::do_move(GLFWwindow* window) {
     /// move:
     /// smater AI if it avoids damage while closing in?
     /// what if it runs into own unit?
@@ -54,7 +54,7 @@ bool CDreadnought::do_move() {
     return true;
 }
 
-bool CDreadnought::do_attack() {
+bool CDreadnought::do_attack(GLFWwindow* window) {
     /// attack:
     for(int d_y = -1; d_y <= 1; ++d_y) {
         for(int d_x = -1; d_x <= 1; ++d_x) {

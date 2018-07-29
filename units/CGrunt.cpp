@@ -92,23 +92,31 @@ void CGrunt::calc_attack_area() {
     }
 }
 
-bool CGrunt::do_move() {
+bool CGrunt::do_move(GLFWwindow* window) {
     /// move
-    if(!this->user_input() && !this->player_options[this->do_y][this->do_x]) {
-        return false;
-    } else {
-        this->move(this->do_x, this->do_y);
-        return true;
+    if(this->user_input(window)) {
+        if (!this->player_options[this->do_y][this->do_x]) {
+            this->reset_xy();
+            return false;
+        } else {
+            this->move(this->do_x, this->do_y);
+            this->reset_xy();
+            return true;
+        }
     }
 }
 
-bool CGrunt::do_attack() {
+bool CGrunt::do_attack(GLFWwindow* window) {
     /// attack
-    if(!this->user_input() && !this->player_options[this->do_y][this->do_x] && !(this->do_x == this->x && this->do_y == this->y)) {
-        return false;
-    } else {
-        this->attack(this->do_x, this->do_y);
-        return true;
+    if(this->user_input(window)) {
+        if (!this->player_options[this->do_y][this->do_x] && !(this->do_x == this->x && this->do_y == this->y)) {
+            this->reset_xy();
+            return false;
+        } else {
+            this->attack(this->do_x, this->do_y);
+            this->reset_xy();
+            return true;
+        }
     }
 }
 

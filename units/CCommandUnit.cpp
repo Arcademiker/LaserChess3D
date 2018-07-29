@@ -19,7 +19,7 @@ void CCommandUnit::calc_attack_area() {
 }
 
 
-bool CCommandUnit::do_move() {
+bool CCommandUnit::do_move(GLFWwindow* window) {
     this->evasion_area.clear();
     this->evasion_area = std::vector<int>(3,0);
 
@@ -61,7 +61,7 @@ bool CCommandUnit::do_move() {
     return true;
 }
 
-bool CCommandUnit::do_attack() {
+bool CCommandUnit::do_attack(GLFWwindow* window) {
     return true;
 }
 

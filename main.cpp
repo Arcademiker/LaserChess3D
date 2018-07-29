@@ -50,7 +50,7 @@
 
 
 
-CMap* generate_map(int level, GLFWwindow* window);
+CMap* generate_map(int level);
 //void print_options(CUnit* unit, CMap* map);
 void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex);
 
@@ -61,7 +61,7 @@ int main()
         graphics_context context;
 
         /// game logic:
-        CMap* map = generate_map(Level,context.window);
+        CMap* map = generate_map(Level);
         std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
 
         /// graphics ini:
@@ -409,8 +409,8 @@ void drawGame(graphics_context context) {
 }
 */
 
-CMap* generate_map(int level, GLFWwindow* window) {
-    auto map = new CMap(window);
+CMap* generate_map(int level) {
+    auto map = new CMap();
     switch(level){
         case 1:
             map->add_unit(4,1,2);

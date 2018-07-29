@@ -35,39 +35,46 @@ int CGame::logic_step(int step) {
             for(auto& Unit: *this->map->get_unit_list()) {
                 this->UMap->insert(Unit);
             }
+            this->map->print(UMap);
+            this->oldState = GLFW_RELEASE;
             step = 1;
             break;
         }
         case 1: {
             /// user input;
-            this->id = user_input();
-            bool match = false;
-            for (auto &Unit: *this->UMap) {
-                if (id == Unit.first) {
-                    match = true;
-                    break;
+            if(user_input()) {
+                bool match = false;
+                for (auto &Unit: *this->UMap) {
+                    if (id == Unit.first) {
+                        match = true;
+                        break;
+                    }
                 }
-            }
-            if (this->id == 0) {
-                this->id = this->UMap->begin()->first;
-                this->U = this->UMap->begin()->second;
-                step = 2;
-            } else if (match) {
-                this->U = this->UMap->at(this->id);
-                step = 2;
+                if (this->id == 0) {
+                    this->id = this->UMap->begin()->first;
+                    this->U = this->UMap->begin()->second;
+                    step = 2;
+                } else if (match) {
+                    this->U = this->UMap->at(this->id);
+                    step = 2;
+                } else {
+                    step = 1;
+                }
             } else {
                 step = 1;
             }
             break;
         }
         case 2: {
+            this->map->print(UMap);
             this->U->calc_move_area();
+            this->print_options(U);
             step = 3;
             break;
         }
         case 3: {
             /// user input
-            if (this->U->do_move()) {
+            if (this->U->do_move(this->context->window)) {
                 step = 4;
             } else {
                 step = 3;
@@ -76,6 +83,7 @@ int CGame::logic_step(int step) {
         }
         case 4: {
             if (this->U->calc_attack_options()) {
+                this->print_options(U);
                 step = 5;
             } else {
                 step = 6;
@@ -84,7 +92,7 @@ int CGame::logic_step(int step) {
         }
         case 5: {
             /// possible user input
-            if (this->U->do_attack()) {
+            if (this->U->do_attack(this->context->window)) {
                 step = 6;
             } else {
                 step = 5;
@@ -94,6 +102,7 @@ int CGame::logic_step(int step) {
         case 6: {
             this->UMap->erase(this->id);
             if (!this->UMap->empty()) {
+                this->map->print(UMap);
                 step = 1;
             } else {
                 step = 7;
@@ -116,9 +125,10 @@ int CGame::logic_step(int step) {
             break;
         }
         case 8: {
-            this->EMap->begin()->second->do_move();
-            this->EMap->begin()->second->do_attack();
             if (!this->EMap->empty()) {
+                this->EMap->begin()->second->do_move(this->context->window);
+                this->EMap->begin()->second->do_attack(this->context->window);
+                this->EMap->clear();
                 step = 8;
             } else {
                 step = 9;
@@ -126,7 +136,6 @@ int CGame::logic_step(int step) {
             break;
         }
         case 9: {
-            this->EMap->clear();
             if (this->map->get_unit_list()->empty()) {
                 this->map->listAllUnits();
                 std::cout << std::endl << "!AI WINS!" << std::endl;
@@ -203,51 +212,72 @@ void CGame::drawGame() {
     glfwPollEvents();
 }
 
-int CGame::user_input() {
-    int id = -1;
+bool CGame::user_input() {
+    int newState = GLFW_RELEASE;
+
     if (glfwGetKey(this->context->window, GLFW_KEY_0) == GLFW_PRESS) {
-        id = 0;
-        std::cout << 0 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 0;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_1) == GLFW_PRESS) {
-        id = 1;
-        std::cout << 1 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 1;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_2) == GLFW_PRESS) {
-        id = 2;
-        std::cout << 2 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 2;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_3) == GLFW_PRESS) {
-        id = 3;
-        std::cout << 3 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 3;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_4) == GLFW_PRESS) {
-        id = 4;
-        std::cout << 4 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 4;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_5) == GLFW_PRESS) {
-        id = 5;
-        std::cout << 5 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 5;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_6) == GLFW_PRESS) {
-        id = 6;
-        std::cout << 6 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 6;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_7) == GLFW_PRESS) {
-        id = 7;
-        std::cout << 7 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 7;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_8) == GLFW_PRESS) {
-        id = 8;
-        std::cout << 8 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 8;
     }
     if (glfwGetKey(this->context->window, GLFW_KEY_9) == GLFW_PRESS) {
-        id = 9;
-        std::cout << 9 << std::endl;
+        newState = GLFW_PRESS;
+        this->id = 9;
     }
-    return id;
+    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+        std::cout << this->id << std::endl;
+        oldState = newState;
+        return true;
+    }
+    oldState = newState;
+    return false;
 }
 
 
 
-
+void CGame::print_options(CUnit* unit) {
+    std::cout << "   0 1 2 3 4 5 6 7" << std::endl << std::endl;
+    for(int y = 0; y < 8 ; ++y) {
+        std::cout << y << " ";
+        for(int x = 0; x < 8 ; ++x) {
+            if(unit->get_player_optons()->at(y).at(x)) {
+                std::cout << " " << map->get(x,y);
+            }
+            else {
+                std::cout << " X";
+            }
+        }
+        std::cout << std::endl;
+    }
+}

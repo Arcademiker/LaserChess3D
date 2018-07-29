@@ -62,131 +62,99 @@ std::pair<int,int> CUnit_Player::user_input() {
 }
 */
 
-bool CUnit_Player::user_input() {
+bool CUnit_Player::user_input(GLFWwindow* window) {
+    int newState = GLFW_RELEASE;
     if(this->xy == 0) {
-        this->do_x = -1;
         //while (this->do_x < 0 || this->do_x > 7 || do_y < 0 || do_y > 7)) {
-        if (glfwGetKey(this->map->window, GLFW_KEY_0) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
             this->do_x = 0;
-            std::cout << 0 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_1) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
             this->do_x = 1;
-            std::cout << 1 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_2) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
             this->do_x = 2;
-            std::cout << 2 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_3) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
             this->do_x = 3;
-            std::cout << 3 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_4) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
             this->do_x = 4;
-            std::cout << 4 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_5) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
             this->do_x = 5;
-            std::cout << 5 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_6) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
             this->do_x = 6;
-            std::cout << 6 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_7) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
             this->do_x = 7;
-            std::cout << 7 << std::endl;
-            this->xy++;
-            return false;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_9) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
             this->do_x = 9;
-            std::cout << 9 << std::endl;
+            newState = GLFW_PRESS;
+        }
+        if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+            std::cout << this->do_x << std::endl;
+            oldState = newState;
             this->xy++;
-            return false;
         }
-        if (this->do_x == 9) {
-            this->do_x = this->x;
-            this->do_y = this->y;
-            return true;
-        }
-    } else {
-        this->do_y = -1;
-        if (glfwGetKey(this->map->window, GLFW_KEY_0) == GLFW_PRESS) {
+    } else if(this->xy == 1){
+        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
             this->do_y = 0;
-            std::cout << 0 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_1) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
             this->do_y = 1;
-            std::cout << 1 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_2) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
             this->do_y = 2;
-            std::cout << 2 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_3) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
             this->do_y = 3;
-            std::cout << 3 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_4) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
             this->do_y = 4;
-            std::cout << 4 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_5) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
             this->do_y = 5;
-            std::cout << 5 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_6) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
             this->do_y = 6;
-            std::cout << 6 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_7) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
             this->do_y = 7;
-            std::cout << 7 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (glfwGetKey(this->map->window, GLFW_KEY_9) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
             this->do_y = 9;
-            std::cout << 9 << std::endl;
-            this->xy = 0;
-            return true;
+            newState = GLFW_PRESS;
         }
-        if (this->do_y == 9) {
-            this->do_x = this->x;
-            this->do_y = this->y;
-            this->xy = 0;
+        if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+            std::cout << this->do_y << std::endl;
+            oldState = newState;
+            this->xy++;
             return true;
         }
     }
+    oldState = newState;
     return false;
+}
+
+void CUnit_Player::reset_xy() {
+    this->xy = 0;
 }

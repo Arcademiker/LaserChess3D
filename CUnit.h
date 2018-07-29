@@ -38,8 +38,8 @@ public:
     virtual void calc_attack_area() = 0;
     virtual std::vector<std::vector<bool>>* get_player_optons() = 0;
     virtual std::vector<std::vector<bool>>* get_attack_range() = 0;
-    virtual bool do_move() = 0;
-    virtual bool do_attack() = 0;
+    virtual bool do_move(GLFWwindow* window) = 0;
+    virtual bool do_attack(GLFWwindow* window) = 0;
 };
 
 

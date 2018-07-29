@@ -67,17 +67,21 @@ void CJumpship::calc_attack_area() {
     }
 }
 
-bool CJumpship::do_move() {
+bool CJumpship::do_move(GLFWwindow* window) {
     /// move
-    if(!this->user_input() && !this->player_options[this->do_y][this->do_x]) {
-        return false;
-    } else {
-        this->move(this->do_x, this->do_y);
-        return true;
+    if(this->user_input(window)) {
+        if (!this->player_options[this->do_y][this->do_x]) {
+            this->reset_xy();
+            return false;
+        } else {
+            this->move(this->do_x, this->do_y);
+            this->reset_xy();
+            return true;
+        }
     }
 }
 
-bool CJumpship::do_attack() {
+bool CJumpship::do_attack(GLFWwindow* window) {
     /// attack
     this->attack(this->x+1,this->y);
     this->attack(this->x,this->y+1);
