@@ -133,9 +133,10 @@ int CGame::logic_step(int step) {
             if (!this->EMap->empty()) {
                 this->EMap->begin()->second->do_move(this->context->window);
                 this->EMap->begin()->second->do_attack(this->context->window);
-                this->EMap->clear();
+                this->EMap->erase(this->EMap->begin());
                 step = 8;
             } else {
+                this->EMap->clear();
                 step = 9;
             }
             break;
