@@ -107,7 +107,7 @@ int main()
     glfwSetCursorPos(context.window, 1024/2, 768/2);
 
     // Dark blue background
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+    glClearColor(0.1f, 0.0f, 0.2f, 0.0f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -130,35 +130,45 @@ int main()
     context.ModelMatrixID = glGetUniformLocation(context.programID, "M");
 
     // Load the texture
-    glGenTextures(1, context.textures);
-    loadImage_SOIL(context.textures,"../units/tank.jpeg",0);
-
+    glGenTextures(3, context.textures);
+    loadImage_SOIL(context.textures,"../chessboard.jpg",0);
     // Get a handle for our "myTextureSampler" uniform
-    context.TextureID  = glGetUniformLocation(context.programID, "myTextureSampler");
+    context.TextureID[0]  = glGetUniformLocation(context.programID, "myTextureSampler");
+    loadImage_SOIL(context.textures,"../units/white.jpg",1);
+    context.TextureID[1]  = glGetUniformLocation(context.programID, "myTextureSampler");
+    loadImage_SOIL(context.textures,"../units/black.jpeg",2);
+    context.TextureID[2]  = glGetUniformLocation(context.programID, "myTextureSampler");
 
-    glGenVertexArrays(6, context.VertexArrayID);
+    glGenVertexArrays(7, context.VertexArrayID);
 
-    std::vector<glm::vec3> indexed_vertices[6];
-    std::vector<glm::vec2> indexed_uvs[6];
-    std::vector<glm::vec3> indexed_normals[6];
+    std::vector<glm::vec3> indexed_vertices[7];
+    std::vector<glm::vec2> indexed_uvs[7];
+    std::vector<glm::vec3> indexed_normals[7];
 
-    GLuint vertexbuffer[6];
-    GLuint uvbuffer[6];
-    GLuint normalbuffer[6];
+    GLuint vertexbuffer[7];
+    GLuint uvbuffer[7];
+    GLuint normalbuffer[7];
 
     auto vaaV = new std::vector<CVAA*>;
     auto vaaU = new std::vector<CVAA*>;
     auto vaaN = new std::vector<CVAA*>;
     auto vaaE = new std::vector<CVAA*>;
 
-    /// unit0
-    for(int i = 0; i < 6; ++i) {
+
+
+    /// load units + chessboard
+    for(int i = 0; i < 7; ++i) {
         glBindVertexArray(context.VertexArrayID[i]);
 
         // Read our .obj file
         // todo: read 6 different objects!
-        bool res = loadAssImp("../units/tank.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
-                              indexed_normals[i]);
+        if(i==0) {
+            bool res = loadAssImp("../chessboard.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else {
+            bool res = loadAssImp("../units/tank.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        }
         // Load it into a VBO
         vaaV->push_back(new CVAA(vertexbuffer[i], indexed_vertices[i], 0, 3, 0, 0)); // 1rst attribute buffer : vertices
         vaaU->push_back(new CVAA(uvbuffer[i], indexed_uvs[i], 1, 2, 0, 0));  // 2nd attribute buffer : UVs
@@ -173,7 +183,7 @@ int main()
     // For speed computation
     context.lastTime = glfwGetTime();
     context.nbFrames = 0;
-    CView view(-30.0f,30.0f,-30.0f,3.14f/4.0f,-3.14f/5.1f);
+    CView view(-30.0f,38.0f,-30.0f,3.14f/4.0f,-3.14f/5.1f);
 
     // Compute the MVP
     // glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
@@ -212,7 +222,7 @@ int main()
     glDeleteBuffers(6, normalbuffer);
     glDeleteBuffers(6, context.elementbuffer);
     glDeleteProgram(context.programID);
-    glDeleteTextures(1, context.textures);
+    glDeleteTextures(2, context.textures);
     glDeleteVertexArrays(3, context.VertexArrayID);
 
     delete vaaE;

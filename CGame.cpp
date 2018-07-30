@@ -176,11 +176,47 @@ void CGame::drawGame() {
     /// Use the shader
     glUseProgram(this->context->programID);
 
+    glm::vec3 lightPos = glm::vec3(8, 8, 8);
+    glUniform3f(this->context->LightID, lightPos.x, lightPos.y, lightPos.z);
+
+    /// draw chessboard
+    this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(7, -0.5, 7));//glm::mat4(1.0);
+    this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
+    glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
+    glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
+    glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
+
+
+
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->context->textures[0]);
+    // Set our "myTextureSampler" sampler to use Texture Unit 0
+    glUniform1i(this->context->TextureID[0], 0);
+
+
+    glBindVertexArray(this->context->VertexArrayID[0]);
+    // Index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[0]);
+
+    // Draw the triangles !
+    glDrawElements(
+            GL_TRIANGLES,      // mode
+            this->context->indices[0].size(),    // count
+            GL_UNSIGNED_SHORT, // type
+            (void *) 0           // element array buffer offset
+    );
+
+    glBindVertexArray(0);
+
     /// draw player Units
     for (auto &U: *this->map->get_unit_list()) {
-        int i = U.second->get_type()-1;
+        int i = U.second->get_type();
 
-        this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(U.second->get_x(), 0, U.second->get_y()));//glm::mat4(1.0);
+        this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
 
         // Send our transformation to the currently bound shader,
@@ -189,14 +225,13 @@ void CGame::drawGame() {
         glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
         glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
-        glm::vec3 lightPos = glm::vec3(4, 4, 4);
-        glUniform3f(this->context->LightID, lightPos.x, lightPos.y, lightPos.z);
+
 
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, this->context->textures[0]);
+        glBindTexture(GL_TEXTURE_2D, this->context->textures[1]);
         // Set our "myTextureSampler" sampler to use Texture Unit 0
-        glUniform1i(this->context->TextureID, 0);
+        glUniform1i(this->context->TextureID[1], 1);
 
 
         glBindVertexArray(this->context->VertexArrayID[i]);
@@ -219,7 +254,7 @@ void CGame::drawGame() {
     for (auto &E: *this->map->get_enemys_list()) {
         int i = E.second->get_type();
 
-        this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(E.second->get_x(), 0, E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
+        this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
 
         // Send our transformation to the currently bound shader,
@@ -233,9 +268,9 @@ void CGame::drawGame() {
 
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, this->context->textures[0]);
+        glBindTexture(GL_TEXTURE_2D, this->context->textures[2]);
         // Set our "myTextureSampler" sampler to use Texture Unit 0
-        glUniform1i(this->context->TextureID, 0);
+        glUniform1i(this->context->TextureID[2], 2);
 
 
         glBindVertexArray(this->context->VertexArrayID[i]);
