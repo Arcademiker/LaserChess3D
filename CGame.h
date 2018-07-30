@@ -24,8 +24,6 @@ struct graphics_context {
     GLuint TextureID;
 
     GLuint LightID;
-    GLuint elementbuffer;
-    GLuint elementbuffer1;
 
     GLuint MatrixID;
     GLuint ViewMatrixID;
@@ -36,10 +34,10 @@ struct graphics_context {
     glm::mat4 ViewMatrix;
     glm::mat4 ModelMatrix;
 
-    std::vector<unsigned short> indices;
-    std::vector<unsigned short> indices1;
+    std::vector<unsigned short> indices[6];
+    GLuint elementbuffer[6];
 
-    GLuint VertexArrayID[1];
+    GLuint VertexArrayID[6];
     GLuint textures[1];
 };
 

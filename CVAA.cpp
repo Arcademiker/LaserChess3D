@@ -55,3 +55,4 @@ CVAA::CVAA(GLuint& buffer, std::vector<unsigned short>& indexed_vec) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexed_vec.size() * sizeof(unsigned short), &indexed_vec[0], GL_STATIC_DRAW);
 }
+

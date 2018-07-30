@@ -23,7 +23,6 @@ public:
     CVAA(GLuint &buffer, std::vector<glm::vec3> &indexed_vec, GLuint id, GLint size, int stride, int buffer_offset);
     CVAA(GLuint &buffer, std::vector<glm::vec2> &indexed_vec, GLuint id, GLint size, int stride, int buffer_offset);
     CVAA(GLuint &buffer, std::vector<unsigned short> &indexed_vec);
-
 };
 
 

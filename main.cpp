@@ -1,6 +1,5 @@
 /* todo:
 // Projekt Strukturieren
-// Laser Chess einbinden
 // Positionen abfragen + zeichnen
 // Schachbrett
 // Maus Steuerung (hightlighting)
@@ -137,46 +136,35 @@ int main()
     // Get a handle for our "myTextureSampler" uniform
     context.TextureID  = glGetUniformLocation(context.programID, "myTextureSampler");
 
-    glGenVertexArrays(2, context.VertexArrayID);
+    glGenVertexArrays(6, context.VertexArrayID);
+
+    std::vector<glm::vec3> indexed_vertices[6];
+    std::vector<glm::vec2> indexed_uvs[6];
+    std::vector<glm::vec3> indexed_normals[6];
+
+    GLuint vertexbuffer[6];
+    GLuint uvbuffer[6];
+    GLuint normalbuffer[6];
+
+    auto vaaV = new std::vector<CVAA*>;
+    auto vaaU = new std::vector<CVAA*>;
+    auto vaaN = new std::vector<CVAA*>;
+    auto vaaE = new std::vector<CVAA*>;
 
     /// unit0
-    glBindVertexArray(context.VertexArrayID[0]);
-    // Read our .obj file
-    context.indices;
-    std::vector<glm::vec3> indexed_vertices;
-    std::vector<glm::vec2> indexed_uvs;
-    std::vector<glm::vec3> indexed_normals;
-    bool res = loadAssImp("../units/tank.obj", context.indices, indexed_vertices, indexed_uvs, indexed_normals);
+    for(int i = 0; i < 6; ++i) {
+        glBindVertexArray(context.VertexArrayID[i]);
 
-    // Load it into a VBO
-    GLuint vertexbuffer;
-    GLuint uvbuffer;
-    GLuint normalbuffer;
-
-    CVAA vaa0(vertexbuffer, indexed_vertices, 0,3,0,0); // 1rst attribute buffer : vertices
-    CVAA vaa1(uvbuffer, indexed_uvs,         1,2,0,0);  // 2nd attribute buffer : UVs
-    CVAA vaa2(normalbuffer, indexed_normals, 2,3,0,0);  // 3rd attribute buffer : normals
-    CVAA eaa3(context.elementbuffer, context.indices);  // Generate a buffer for the indices as well
-
-    /// unit1
-    glBindVertexArray(context.VertexArrayID[1]);
-    // Read our .obj file
-    context.indices1;
-    std::vector<glm::vec3> indexed_vertices1;
-    std::vector<glm::vec2> indexed_uvs1;
-    std::vector<glm::vec3> indexed_normals1;
-    bool res1 = loadAssImp("../units/cube.obj", context.indices1, indexed_vertices1, indexed_uvs1, indexed_normals1);
-
-    // Load it into a VBO
-    GLuint vertexbuffer1;
-    GLuint uvbuffer1;
-    GLuint normalbuffer1;
-
-    CVAA vaa10(vertexbuffer1, indexed_vertices1, 0,3,0,0); // 1rst attribute buffer : vertices
-    CVAA vaa11(uvbuffer1, indexed_uvs1,         1,2,0,0);  // 2nd attribute buffer : UVs
-    CVAA vaa12(normalbuffer1, indexed_normals1, 2,3,0,0);  // 3rd attribute buffer : normals
-    CVAA eaa13(context.elementbuffer1, context.indices1);  // Generate a buffer for the indices as well
-
+        // Read our .obj file
+        // todo: read 6 different objects!
+        bool res = loadAssImp("../units/tank.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                              indexed_normals[i]);
+        // Load it into a VBO
+        vaaV->push_back(new CVAA(vertexbuffer[i], indexed_vertices[i], 0, 3, 0, 0)); // 1rst attribute buffer : vertices
+        vaaU->push_back(new CVAA(uvbuffer[i], indexed_uvs[i], 1, 2, 0, 0));  // 2nd attribute buffer : UVs
+        vaaN->push_back(new CVAA(normalbuffer[i], indexed_normals[i], 2, 3, 0, 0));  // 3rd attribute buffer : normals
+        vaaE->push_back(new CVAA(context.elementbuffer[i], context.indices[i]));  // Generate a buffer for the indices as well
+    }
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(context.programID);
@@ -219,18 +207,18 @@ int main()
 
     /// delete grafic buffers:
     // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
-    glDeleteBuffers(1, &normalbuffer);
-    glDeleteBuffers(1, &context.elementbuffer);
-    glDeleteBuffers(1, &vertexbuffer1);
-    glDeleteBuffers(1, &uvbuffer1);
-    glDeleteBuffers(1, &normalbuffer1);
-    glDeleteBuffers(1, &context.elementbuffer1);
+    glDeleteBuffers(6, vertexbuffer);
+    glDeleteBuffers(6, uvbuffer);
+    glDeleteBuffers(6, normalbuffer);
+    glDeleteBuffers(6, context.elementbuffer);
     glDeleteProgram(context.programID);
     glDeleteTextures(1, context.textures);
-    glDeleteVertexArrays(2, context.VertexArrayID);
+    glDeleteVertexArrays(3, context.VertexArrayID);
 
+    delete vaaE;
+    delete vaaN;
+    delete vaaU;
+    delete vaaV;
     // Close OpenGL context.window and terminate GLFW
     glfwTerminate();
 
