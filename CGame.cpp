@@ -218,7 +218,7 @@ void CGame::drawGame() {
     for (auto &E: *this->map->get_enemys_list()) {
         int i = E.second->get_type();
 
-        this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(E.second->get_x(), 0, E.second->get_y()));//glm::mat4(1.0);
+        this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(E.second->get_x(), 0, E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
 
         // Send our transformation to the currently bound shader,
