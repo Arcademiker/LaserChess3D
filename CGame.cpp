@@ -290,59 +290,7 @@ void CGame::drawGame() {
     glfwPollEvents();
 }
 
-/*
-bool CGame::user_input() {
-    int newState = GLFW_RELEASE;
 
-    if (glfwGetKey(this->context->window, GLFW_KEY_0) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 0;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_1) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 1;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_2) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 2;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_3) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 3;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_4) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 4;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_5) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 5;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_6) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 6;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_7) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 7;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_8) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 8;
-    }
-    if (glfwGetKey(this->context->window, GLFW_KEY_9) == GLFW_PRESS) {
-        newState = GLFW_PRESS;
-        this->id = 9;
-    }
-    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
-        std::cout << this->id << std::endl;
-        oldState = newState;
-        return true;
-    }
-    oldState = newState;
-    return false;
-}
-*/
 
 bool CGame::user_input() {
     int newState = GLFW_RELEASE;

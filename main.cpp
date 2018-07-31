@@ -165,6 +165,21 @@ int main()
         if(i==0) {
             bool res = loadAssImp("../chessboard.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
+        } else if(i == 1) {
+            bool res = loadAssImp("../units/drone.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else if(i == 2) {
+            bool res = loadAssImp("../units/dreadnought.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else if(i == 3) {
+            bool res = loadAssImp("../units/commandUnit.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else if(i == 4) {
+            bool res = loadAssImp("../units/grunt.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else if(i == 5) {
+            bool res = loadAssImp("../units/jumpship.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
         } else {
             bool res = loadAssImp("../units/tank.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
@@ -197,7 +212,7 @@ int main()
 
 
     /// start game:
-    for(int Level = 1; Level <= 3; ++Level) {
+    for(int Level = 2; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
         std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
@@ -263,14 +278,18 @@ CMap* generate_map(int level) {
 
             break;
         case 2:
-            map->add_unit(4,1,1);
+            map->add_unit(4,1,0);
+            map->add_unit(4,1,2);
             map->add_unit(4,1,3);
+            map->add_unit(4,1,4);
             map->add_unit(4,1,5);
             map->add_unit(4,1,7);
+            map->add_unit(5,0,2);
+            map->add_unit(5,0,1);
+            map->add_unit(5,0,5);
+            map->add_unit(5,0,6);
             map->add_unit(6,0,0);
-            map->add_unit(6,0,2);
-            map->add_unit(6,0,4);
-            map->add_unit(6,0,6);
+            map->add_unit(6,0,7);
 
             map->add_unit(1,5,0);
             map->add_unit(1,5,1);
@@ -295,8 +314,8 @@ CMap* generate_map(int level) {
             map->add_unit(4,1,0);
             map->add_unit(4,1,1);
             map->add_unit(4,1,2);
-            map->add_unit(4,1,3);
-            map->add_unit(4,1,4);
+            map->add_unit(6,1,3);
+            map->add_unit(6,1,4);
             map->add_unit(4,1,5);
             map->add_unit(4,1,6);
             map->add_unit(4,1,7);
@@ -312,27 +331,29 @@ CMap* generate_map(int level) {
             map->add_unit(1,6,0);
             map->add_unit(1,6,1);
             map->add_unit(1,6,2);
-            map->add_unit(1,6,3);
-            map->add_unit(1,6,4);
+            map->add_unit(2,6,3);
+            map->add_unit(2,6,4);
             map->add_unit(1,6,5);
             map->add_unit(1,6,6);
             map->add_unit(1,6,7);
+
             map->add_unit(1,4,2);
             map->add_unit(1,4,3);
             map->add_unit(1,4,4);
             map->add_unit(1,4,5);
-            map->add_unit(1,2,5);
+            map->add_unit(1,5,2);
+            map->add_unit(2,5,3);
+            map->add_unit(2,5,4);
             map->add_unit(1,5,5);
-            map->add_unit(2,3,5);
-            map->add_unit(2,4,5);
-            map->add_unit(3,7,0);
+
+            map->add_unit(3,7,3);
             map->add_unit(2,7,1);
             map->add_unit(2,7,2);
-            map->add_unit(2,7,3);
-            map->add_unit(2,7,4);
+            map->add_unit(2,7,0);
+            map->add_unit(2,7,7);
             map->add_unit(2,7,5);
             map->add_unit(2,7,6);
-            map->add_unit(3,7,7);
+            map->add_unit(3,7,4);
 
             break;
         default:
