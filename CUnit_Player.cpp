@@ -5,7 +5,6 @@
 #include "CUnit_Player.h"
 
 CUnit_Player::CUnit_Player(int typ, int x, int y, CMap &map) : CUnit(typ, x, y, map) {
-    this->xy = 0;
 }
 
 bool CUnit_Player::attack(int to_x, int to_y) {
@@ -62,6 +61,7 @@ std::pair<int,int> CUnit_Player::user_input() {
 }
 */
 
+/*
 bool CUnit_Player::user_input(GLFWwindow* window) {
     int newState = GLFW_RELEASE;
     if(this->xy == 0) {
@@ -154,7 +154,26 @@ bool CUnit_Player::user_input(GLFWwindow* window) {
     oldState = newState;
     return false;
 }
+ */
 
-void CUnit_Player::reset_xy() {
-    this->xy = 0;
+bool CUnit_Player::user_input(GLFWwindow* window) {
+    int newState = GLFW_RELEASE;
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS) {
+        newState = GLFW_PRESS;
+        this->do_y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
+        this->do_x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
+    }
+    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+        std::cout << "( " << do_x << ", " << do_y << ")" << std::endl;
+        oldState = newState;
+        return true;
+    }
+    oldState = newState;
+    return false;
 }
+
+
+

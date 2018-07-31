@@ -17,7 +17,6 @@ class CUnit_Player : public CUnit{
 protected:
     std::vector<std::vector<bool>> player_options;
     std::vector<std::vector<bool>> attack_range;
-    int xy;
     int do_x;
     int do_y;
     int oldState;
@@ -28,7 +27,6 @@ public:
     std::vector<std::vector<bool>>* get_player_optons() override;
     std::vector<std::vector<bool>>* get_attack_range() override;
     bool user_input(GLFWwindow* window);
-    void reset_xy();
 };
 
 

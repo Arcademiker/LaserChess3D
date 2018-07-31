@@ -71,11 +71,9 @@ bool CJumpship::do_move(GLFWwindow* window) {
     /// move
     if(this->user_input(window)) {
         if (!this->player_options[this->do_y][this->do_x]) {
-            this->reset_xy();
             return false;
         } else {
             this->move(this->do_x, this->do_y);
-            this->reset_xy();
             return true;
         }
     }

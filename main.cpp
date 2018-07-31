@@ -205,12 +205,12 @@ int main()
         /// main game loop:
         CGame game(map, &context);
         // check if player may enter next level
-        if (game.gameloop() == 1) {
+        int next = game.gameloop();
+        if (next == 1) {
             delete map;
             break;
-        } else {
-            Level = game.gameloop();
         }
+        Level = Level+next;
         delete map;
     }
 

@@ -22,7 +22,10 @@ int CGame::gameloop() {
     do {
         step = this->logic_step(step);
         this->drawGame();
-    } while ( step != -1 && step != -2 && glfwGetKey(this->context->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+        if(step == -1 || step == -2 ) {
+            break;
+        }
+    } while ( glfwGetKey(this->context->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
               glfwWindowShouldClose(this->context->window) == 0 ); // Check if the ESC key was pressed or the->window was closed
 
     if(step == -1) {
@@ -48,18 +51,7 @@ int CGame::logic_step(int step) {
         case 1: {
             /// user input;
             if(user_input()) {
-                bool match = false;
-                for (auto &Unit: *this->UMap) {
-                    if (id == Unit.first) {
-                        match = true;
-                        break;
-                    }
-                }
-                if (this->id == 0) {
-                    this->id = this->UMap->begin()->first;
-                    this->U = this->UMap->begin()->second;
-                    step = 2;
-                } else if (match) {
+                if(this->UMap->count(this->id) > 0){
                     this->U = this->UMap->at(this->id);
                     step = 2;
                 } else {
@@ -298,6 +290,7 @@ void CGame::drawGame() {
     glfwPollEvents();
 }
 
+/*
 bool CGame::user_input() {
     int newState = GLFW_RELEASE;
 
@@ -340,6 +333,27 @@ bool CGame::user_input() {
     if (glfwGetKey(this->context->window, GLFW_KEY_9) == GLFW_PRESS) {
         newState = GLFW_PRESS;
         this->id = 9;
+    }
+    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+        std::cout << this->id << std::endl;
+        oldState = newState;
+        return true;
+    }
+    oldState = newState;
+    return false;
+}
+*/
+
+bool CGame::user_input() {
+    int newState = GLFW_RELEASE;
+    double xpos, ypos;
+    glfwGetCursorPos(this->context->window, &xpos, &ypos);
+
+    if (glfwGetMouseButton(this->context->window, GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS) {
+        newState = GLFW_PRESS;
+        auto y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
+        auto x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
+        this->id = this->map->get(x,y);
     }
     if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
         std::cout << this->id << std::endl;
