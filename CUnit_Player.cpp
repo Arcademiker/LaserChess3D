@@ -48,7 +48,7 @@ bool CUnit_Player::user_input(GLFWwindow* window) {
         this->do_y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
         this->do_x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
     }
-    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+    if (this->do_y>=0 && this->do_y<8 && this->do_x >=0 && this->do_x < 8 &&newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
         std::cout << "( " << do_x << ", " << do_y << ")" << std::endl;
         oldState = newState;
         return true;

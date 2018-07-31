@@ -212,7 +212,7 @@ int main()
 
 
     /// start game:
-    for(int Level = 2; Level <= 3; ++Level) {
+    for(int Level = 1; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
         std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;

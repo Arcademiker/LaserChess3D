@@ -301,7 +301,11 @@ bool CGame::user_input() {
         newState = GLFW_PRESS;
         auto y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
         auto x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
-        this->id = this->map->get(x,y);
+        if(y>=0 && y<8 && x >=0 && x < 8) {
+            this->id = this->map->get(x, y);
+        } else {
+            this->id = 0;
+        }
     }
     if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
         std::cout << this->id << std::endl;
