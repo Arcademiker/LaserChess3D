@@ -21,7 +21,9 @@ struct graphics_context {
     double lastTime;
     int nbFrames;
     GLuint programID;
-    GLuint TextureID[3];
+
+    GLuint TextureID[4];
+    GLuint textures[4];
 
     GLuint LightID;
 
@@ -34,11 +36,11 @@ struct graphics_context {
     glm::mat4 ViewMatrix;
     glm::mat4 ModelMatrix;
 
-    std::vector<unsigned short> indices[7];
-    GLuint elementbuffer[7];
+    std::vector<unsigned short> indices[8];
+    GLuint elementbuffer[8];
 
-    GLuint VertexArrayID[7];
-    GLuint textures[3];
+    GLuint VertexArrayID[8];
+
 };
 
 class CGame {
@@ -56,7 +58,7 @@ public:
     ~CGame();
     int gameloop();
     int logic_step(int step);
-    void drawGame();
+    void drawGame(int step);
     bool user_input();
     void print_options(CUnit* unit);
 };

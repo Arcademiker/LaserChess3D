@@ -1,9 +1,6 @@
 /* todo:
 // Projekt Strukturieren
-// Positionen abfragen + zeichnen
-// Schachbrett
-// Maus Steuerung (hightlighting)
-// Alle 6 modelle
+// hightlighting
 // Licht + texturen
 // Bewegungspfade animieren
 // HP darstellen
@@ -130,7 +127,7 @@ int main()
     context.ModelMatrixID = glGetUniformLocation(context.programID, "M");
 
     // Load the texture
-    glGenTextures(3, context.textures);
+    glGenTextures(4, context.textures);
     loadImage_SOIL(context.textures,"../chessboard.jpg",0);
     // Get a handle for our "myTextureSampler" uniform
     context.TextureID[0]  = glGetUniformLocation(context.programID, "myTextureSampler");
@@ -138,16 +135,18 @@ int main()
     context.TextureID[1]  = glGetUniformLocation(context.programID, "myTextureSampler");
     loadImage_SOIL(context.textures,"../units/black.jpeg",2);
     context.TextureID[2]  = glGetUniformLocation(context.programID, "myTextureSampler");
+    loadImage_SOIL(context.textures,"../units/target.jpg",3);
+    context.TextureID[3]  = glGetUniformLocation(context.programID, "myTextureSampler");
 
-    glGenVertexArrays(7, context.VertexArrayID);
+    glGenVertexArrays(8, context.VertexArrayID);
 
-    std::vector<glm::vec3> indexed_vertices[7];
-    std::vector<glm::vec2> indexed_uvs[7];
-    std::vector<glm::vec3> indexed_normals[7];
+    std::vector<glm::vec3> indexed_vertices[8];
+    std::vector<glm::vec2> indexed_uvs[8];
+    std::vector<glm::vec3> indexed_normals[8];
 
-    GLuint vertexbuffer[7];
-    GLuint uvbuffer[7];
-    GLuint normalbuffer[7];
+    GLuint vertexbuffer[8];
+    GLuint uvbuffer[8];
+    GLuint normalbuffer[8];
 
     auto vaaV = new std::vector<CVAA*>;
     auto vaaU = new std::vector<CVAA*>;
@@ -157,7 +156,7 @@ int main()
 
 
     /// load units + chessboard
-    for(int i = 0; i < 7; ++i) {
+    for(int i = 0; i < 8; ++i) {
         glBindVertexArray(context.VertexArrayID[i]);
 
         // Read our .obj file
@@ -180,8 +179,11 @@ int main()
         } else if(i == 5) {
             bool res = loadAssImp("../units/jumpship.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
-        } else {
+        } else if(i == 6){
             bool res = loadAssImp("../units/tank.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else {
+            bool res = loadAssImp("../options2.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
         }
         // Load it into a VBO
@@ -232,13 +234,13 @@ int main()
 
     /// delete grafic buffers:
     // Cleanup VBO and shader
-    glDeleteBuffers(6, vertexbuffer);
-    glDeleteBuffers(6, uvbuffer);
-    glDeleteBuffers(6, normalbuffer);
-    glDeleteBuffers(6, context.elementbuffer);
+    glDeleteBuffers(8, vertexbuffer);
+    glDeleteBuffers(8, uvbuffer);
+    glDeleteBuffers(8, normalbuffer);
+    glDeleteBuffers(8, context.elementbuffer);
     glDeleteProgram(context.programID);
-    glDeleteTextures(2, context.textures);
-    glDeleteVertexArrays(3, context.VertexArrayID);
+    glDeleteTextures(4, context.textures);
+    glDeleteVertexArrays(8, context.VertexArrayID);
 
     delete vaaE;
     delete vaaN;

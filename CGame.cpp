@@ -21,7 +21,7 @@ int CGame::gameloop() {
     int step = 0;
     do {
         step = this->logic_step(step);
-        this->drawGame();
+        this->drawGame(step);
         if(step == -1 || step == -2 ) {
             break;
         }
@@ -151,7 +151,7 @@ int CGame::logic_step(int step) {
     return step;
 }
 
-void CGame::drawGame() {
+void CGame::drawGame(int step) {
     // Measure speed
     double currentTime = glfwGetTime();
     this->context->nbFrames++;
@@ -170,6 +170,9 @@ void CGame::drawGame() {
 
     glm::vec3 lightPos = glm::vec3(8, 8, 8);
     glUniform3f(this->context->LightID, lightPos.x, lightPos.y, lightPos.z);
+
+
+
 
     /// draw chessboard
     this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(7, -0.5, 7));//glm::mat4(1.0);
@@ -204,6 +207,52 @@ void CGame::drawGame() {
 
     glBindVertexArray(0);
 
+    if(step == 3 || step == 5) {
+    /// draw player options
+        for(int y = 0; y < 8 ; ++y) {
+            for(int x = 0; x < 8 ; ++x) {
+                if(this->U->get_player_optons()->at(y).at(x) || (y == this->U->get_y() && x == this->U->get_x())) {
+                    this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*x, 0, 2*y));//glm::mat4(1.0);
+                    this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+                    // Send our transformation to the currently bound shader,
+                    // in the "MVP" uniform
+                    glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
+                    glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
+                    glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
+
+                    if(step == 3) {
+                        // Bind our texture in Texture Unit 0
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, this->context->textures[1]);
+                        // Set our "myTextureSampler" sampler to use Texture Unit 0
+                        glUniform1i(this->context->TextureID[1], 1);
+                    } else {
+                        // Bind our texture in Texture Unit 0
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, this->context->textures[3]);
+                        // Set our "myTextureSampler" sampler to use Texture Unit 0
+                        glUniform1i(this->context->TextureID[3], 3);
+                    }
+
+                    glBindVertexArray(this->context->VertexArrayID[7]);
+                    // Index buffer
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[7]);
+
+                    // Draw the triangles !
+                    glDrawElements(
+                            GL_TRIANGLES,      // mode
+                            this->context->indices[7].size(),    // count
+                            GL_UNSIGNED_SHORT, // type
+                            (void *) 0           // element array buffer offset
+                    );
+
+                    glBindVertexArray(0);
+                }
+            }
+        }
+
+    }
+
     /// draw player Units
     for (auto &U: *this->map->get_unit_list()) {
         int i = U.second->get_type();
@@ -218,13 +267,19 @@ void CGame::drawGame() {
         glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
 
-
-        // Bind our texture in Texture Unit 0
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, this->context->textures[1]);
-        // Set our "myTextureSampler" sampler to use Texture Unit 0
-        glUniform1i(this->context->TextureID[1], 1);
-
+        if(this->UMap->count(U.first) != 0) {
+            // Bind our texture in Texture Unit 0
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, this->context->textures[1]);
+            // Set our "myTextureSampler" sampler to use Texture Unit 0
+            glUniform1i(this->context->TextureID[1], 1);
+        } else {
+            // Bind our texture in Texture Unit 0
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, this->context->textures[3]);
+            // Set our "myTextureSampler" sampler to use Texture Unit 0
+            glUniform1i(this->context->TextureID[3], 3);
+        }
 
         glBindVertexArray(this->context->VertexArrayID[i]);
         // Index buffer
