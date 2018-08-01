@@ -49,6 +49,10 @@ bool CUnit_Player::user_input(GLFWwindow* window) {
         newState = GLFW_PRESS;
         this->do_y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
         this->do_x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
+    } else if (glfwGetKey(window, GLFW_KEY_ENTER)==GLFW_PRESS) {
+        newState = GLFW_PRESS;
+        this->do_y = this->y;
+        this->do_x = this->x;
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS) {
         newState = GLFW_PRESS;
         this->abort = true;

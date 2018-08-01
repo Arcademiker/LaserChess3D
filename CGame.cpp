@@ -54,6 +54,10 @@ int CGame::logic_step(int step) {
                 if(this->UMap->count(this->id) > 0){
                     this->U = this->UMap->at(this->id);
                     step = 2;
+                } else if (this->id == -1) {
+                    this->id = this->UMap->begin()->first;
+                    this->U = this->UMap->begin()->second;
+                    step = 2;
                 } else {
                     step = 1;
                 }
@@ -365,6 +369,9 @@ bool CGame::user_input() {
         } else {
             this->id = 0;
         }
+    } else if (glfwGetKey(this->context->window, GLFW_KEY_ENTER)==GLFW_PRESS) {
+        newState = GLFW_PRESS;
+        this->id = -1;
     }
     if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
         std::cout << this->id << std::endl;

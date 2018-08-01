@@ -117,13 +117,13 @@ bool CMap::kill_unit(int id) {
         if(this->get_unit(id)->get_type()==3) {
             this->commandU_counter--;
         }
-        pList = &enemy_list;
+        pList = &this->enemy_list;
     }
     else {
-        pList = &unit_list;
+        pList = &this->unit_list;
     }
     if (pList->count(id) != 0) {
-        set(pList->at(id)->get_x(), pList->at(id)->get_y(), 0);
+        this->set(pList->at(id)->get_x(), pList->at(id)->get_y(), 0);
         pList->erase(id);
         return true;
     }
