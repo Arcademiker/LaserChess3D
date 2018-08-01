@@ -74,7 +74,11 @@ int CGame::logic_step(int step) {
             if (this->U->do_move(this->context->window)) {
                 step = 4;
             } else {
-                step = 3;
+                if(this->U->is_abort()) {
+                    step = 1;
+                } else {
+                    step = 3;
+                }
             }
             break;
         }

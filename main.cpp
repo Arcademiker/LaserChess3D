@@ -1,11 +1,9 @@
 /* todo:
 // Projekt Strukturieren
-// hightlighting
 // Licht + texturen
+// enter skip, right click move choose another
 // Bewegungspfade animieren
 // HP darstellen
-// Schüsse animieren
-// Schaden animieren
 // You win loose text?
 */
 
@@ -267,14 +265,16 @@ CMap* generate_map(int level) {
             map->add_unit(6,0,2);
             map->add_unit(6,0,5);
 
-            map->add_unit(1,7,0);
-            map->add_unit(1,7,7);
-            map->add_unit(1,6,1);
-            map->add_unit(1,6,6);
-            map->add_unit(1,5,2);
-            map->add_unit(1,5,5);
-            map->add_unit(1,4,3);
-            map->add_unit(1,4,4);
+            map->add_unit(1,4,0);
+            map->add_unit(1,4,7);
+            map->add_unit(1,5,1);
+            map->add_unit(1,5,6);
+            map->add_unit(1,6,2);
+            map->add_unit(1,6,5);
+            map->add_unit(1,7,2);
+            map->add_unit(1,7,5);
+            map->add_unit(2,6,3);
+            map->add_unit(2,6,4);
             map->add_unit(2,7,4);
             map->add_unit(3,7,3);
 

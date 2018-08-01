@@ -40,6 +40,7 @@ public:
     virtual std::vector<std::vector<bool>>* get_attack_range() = 0;
     virtual bool do_move(GLFWwindow* window) = 0;
     virtual bool do_attack(GLFWwindow* window) = 0;
+    virtual bool is_abort() = 0;
 };
 
 

@@ -45,6 +45,10 @@ std::vector<std::vector<bool>> *CUnit_AI::get_attack_range() {
     return &this->attack_range;
 }
 
+bool CUnit_AI::is_abort() {
+    return false;
+}
+
 
 
 

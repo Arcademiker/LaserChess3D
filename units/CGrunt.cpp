@@ -95,7 +95,9 @@ void CGrunt::calc_attack_area() {
 bool CGrunt::do_move(GLFWwindow* window) {
     /// move
     if(this->user_input(window)) {
-        if (!this->player_options[this->do_y][this->do_x]) {
+        if(this->abort) {
+            return false;
+        }else if (!this->player_options[this->do_y][this->do_x]) {
             return false;
         } else {
             this->move(this->do_x, this->do_y);

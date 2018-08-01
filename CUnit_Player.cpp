@@ -5,6 +5,7 @@
 #include "CUnit_Player.h"
 
 CUnit_Player::CUnit_Player(int typ, int x, int y, CMap &map) : CUnit(typ, x, y, map) {
+    this->abort = false;
 }
 
 bool CUnit_Player::attack(int to_x, int to_y) {
@@ -40,6 +41,7 @@ std::vector<std::vector<bool>> *CUnit_Player::get_player_optons() {
 
 bool CUnit_Player::user_input(GLFWwindow* window) {
     int newState = GLFW_RELEASE;
+    this->abort = false;
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
 
@@ -47,14 +49,21 @@ bool CUnit_Player::user_input(GLFWwindow* window) {
         newState = GLFW_PRESS;
         this->do_y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
         this->do_x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
+    } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS) {
+        newState = GLFW_PRESS;
+        this->abort = true;
     }
     if (this->do_y>=0 && this->do_y<8 && this->do_x >=0 && this->do_x < 8 &&newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
-        std::cout << "( " << do_x << ", " << do_y << ")" << std::endl;
+        //std::cout << "( " << do_x << ", " << do_y << ")" << std::endl;
         oldState = newState;
         return true;
     }
     oldState = newState;
     return false;
+}
+
+bool CUnit_Player::is_abort() {
+    return this->abort;
 }
 
 

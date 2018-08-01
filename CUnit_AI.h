@@ -19,6 +19,7 @@ public:
     std::vector<std::vector<bool>>* get_player_optons() override;
     bool calc_attack_options() override;
     std::vector<std::vector<bool>>* get_attack_range() override;
+    bool is_abort() override ;
 };
 
 
