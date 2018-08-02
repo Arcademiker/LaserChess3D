@@ -264,7 +264,7 @@ int main()
     for(int Level = 1; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
-        std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
+        //std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
 
         /// main game loop:
         CGame game(map, &context);

@@ -54,7 +54,7 @@ int CGame::logic_step(int step) {
             for(auto& Unit: *this->map->get_unit_list()) {
                 this->UMap->insert(Unit);
             }
-            this->map->print(UMap);
+            //this->map->print(UMap);
             this->oldState = GLFW_RELEASE;
             step = 1;
             break;
@@ -78,9 +78,9 @@ int CGame::logic_step(int step) {
             break;
         }
         case 2: {
-            this->map->print(UMap);
+            //this->map->print(UMap);
             this->U->calc_move_area();
-            this->print_options(U);
+            //this->print_options(U);
             step = 3;
             this->old_x = this->U->get_x();
             this->old_y = this->U->get_y();
@@ -101,7 +101,7 @@ int CGame::logic_step(int step) {
         }
         case 4: {
             if (this->U->calc_attack_options()) {
-                this->print_options(U);
+                //this->print_options(U);
                 step = 5;
             } else {
                 step = 6;
@@ -120,7 +120,7 @@ int CGame::logic_step(int step) {
         case 6: {
             this->UMap->erase(this->id);
             if (!this->UMap->empty()) {
-                this->map->print(UMap);
+                //this->map->print(UMap);
                 step = 1;
             } else {
                 step = 7;
@@ -131,8 +131,8 @@ int CGame::logic_step(int step) {
             this->UMap->clear();
             /// AI turn
             if (this->map->get_enemys_list()->empty() || this->map->get_commandU_counter() <= 0) {
-                this->map->listAllUnits();
-                std::cout << std::endl << "!PLAYER WINS!" << std::endl;
+                //this->map->listAllUnits();
+                //std::cout << std::endl << "!PLAYER WINS!" << std::endl;
                 step = -2;
             } else {
                 for (auto &E: *this->map->get_enemys_list()) {
@@ -160,8 +160,8 @@ int CGame::logic_step(int step) {
         }
         case 9: {
             if (this->map->get_unit_list()->empty()) {
-                this->map->listAllUnits();
-                std::cout << std::endl << "!AI WINS!" << std::endl;
+                //this->map->listAllUnits();
+                //std::cout << std::endl << "!AI WINS!" << std::endl;
                 step = -1;
             } else {
                 this->round++;
@@ -178,14 +178,14 @@ int CGame::logic_step(int step) {
 
 void CGame::drawGame(int step) {
     // Measure speed
-    double currentTime = glfwGetTime();
-    this->context->nbFrames++;
-    if ( currentTime - this->context->lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+    //double currentTime = glfwGetTime();
+    //this->context->nbFrames++;
+    //if ( currentTime - this->context->lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
         // printf and reset
-        printf("%f ms/frame\n", 1000.0/double(this->context->nbFrames));
-        this->context->nbFrames = 0;
-        this->context->lastTime += 1.0;
-    }
+    //    printf("%f ms/frame\n", 1000.0/double(this->context->nbFrames));
+    //    this->context->nbFrames = 0;
+    //    this->context->lastTime += 1.0;
+    //}
 
 
 
@@ -579,7 +579,7 @@ bool CGame::user_input() {
         this->id = -1;
     }
     if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
-        std::cout << this->id << std::endl;
+        //std::cout << this->id << std::endl;
         oldState = newState;
         return true;
     }
@@ -588,7 +588,7 @@ bool CGame::user_input() {
 }
 
 
-
+/*
 void CGame::print_options(CUnit* unit) {
     std::cout << "   0 1 2 3 4 5 6 7" << std::endl << std::endl;
     for(int y = 0; y < 8 ; ++y) {
@@ -604,3 +604,4 @@ void CGame::print_options(CUnit* unit) {
         std::cout << std::endl;
     }
 }
+*/

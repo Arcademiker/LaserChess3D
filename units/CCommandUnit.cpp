@@ -44,8 +44,8 @@ bool CCommandUnit::do_move(GLFWwindow* window) {
     this->x = tmp_x;
     this->y = tmp_y;
 
-    std::cout << "evasion" << std::endl;
-    std::cout << this->evasion_area[0] << " " << this->evasion_area[1] << " " << this->evasion_area[2] << std::endl;
+    //std::cout << "evasion" << std::endl;
+    //std::cout << this->evasion_area[0] << " " << this->evasion_area[1] << " " << this->evasion_area[2] << std::endl;
 
     if(this->map->is_inbound(this->x,this->y-1) && this->map->get(this->x,this->y-1) == 0
        && this->evasion_area[0]  < this->evasion_area[1] && (this->evasion_area[0] < this->evasion_area[2] || !this->map->is_inbound(this->x,this->y+1))) {
