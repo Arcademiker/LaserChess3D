@@ -1,5 +1,5 @@
 # LaserChess3D
-![laserchess](https://user-images.githubusercontent.com/15786772/43614662-9d22470a-96b4-11e8-9ae4-921a3d7bf322.png)
+![laserchess](https://user-images.githubusercontent.com/15786772/43614702-cf3fff8e-96b4-11e8-8b98-b3633cb95fdd.png)
 
 ```
 Game Overview:
