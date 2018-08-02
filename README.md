@@ -20,26 +20,29 @@ Press Enter while accesing a Unit to do no move or no attack with current Unit.
 The Units:
 
 The Human pieces:
-Grunt
+
+Grunt:
   Moves 1 space orthogonally 
   Shoots once, diagonally at any range. 
   Attack power: 1 
   Hitpoints: 2 
   
-Jumpship
+Jumpship:
   Moves like the knight in Chess 
   Attacks all enemy pieces in the 4 orthogonally adjacent spaces simultaneously. 
   Attack power: 2 
   Hitpoints: 2 
 
-Tank
+Tank:
   Moves like the Queen in chess, up to a maximum of 3 spaces. 
   Shoots once, orthogonally at any range. 
   Attack power: 2 
   Hitpoints: 4 
   
+  
 The AI pieces:
-Drone
+
+Drone:
   Moves forward 1 space from its side of the board (like a pawn, but never moves diagonally). 
   Shoots once, diagonally at any range. 
   Attack power: 1 
@@ -48,7 +51,8 @@ Drone
     Drones move before any other AI piece. 
     They must all move and attack if possible. 
     They must shoot at a target if possible after attempting to move 
-Dreadnought
+    
+Dreadnought:
   Moves 1 space in any direction: 
   Attacks all adjacent enemy units; 
   Attack power 2: 
@@ -57,7 +61,8 @@ Dreadnought
     Dreadnoughts move after all drones have moved. 
     It must move 1 space, if possible, and must move towards the nearest enemy unit. It must try to 
     attack after moving. 
-Command Unit
+    
+Command Unit:
   The Command Unit must move after Dreadnoughts have moved. 
   It can only move 1space in two possible directions ­ parallel to the AIs side of the board (i.e. it stays 
   the same distance from the enemy side of the board). 
