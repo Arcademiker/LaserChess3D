@@ -1,13 +1,25 @@
-/* todo:
-// Projekt Strukturieren
-// Licht + texturen
-// enter skip, right click move choose another
-// Bewegungspfade animieren
-// HP darstellen
-// You win loose text?
-*/
+// todo: You win and loose text
+/*
+ * LASER CHESS:
+ *
+ * Class overview:
+ * main   - set up OpenGL and load Game Levels
+ * CGame  - Game logic and render routine
+ * CMap   - data structure for storing the game state
+ * CUnit  - data structure for storing functionalities of the Laser Chess figures
+ *      CUnit_AI     - derivation of CUnit to extend CUnit with AI abilities
+ *      CUnit_Player - derivation of CUnit to extend CUnit with player controll abilities
+ *          6 different Unit classes - derivations of CUnit to extend CUnit figure type specific abilities
+ * CVAA   - class to generate vertex array attributes for draw routine
+ * CView  - define player view
+ * Shader - load Shaders and bind them with OpenGL
+ * objectloader - model loader interface for Assimp
+ */
 
-// Include standard headers
+
+
+
+/// Include standard headers
 #include <cstdio>
 #include <cstdlib>
 
@@ -15,18 +27,18 @@
 
 
 
-// Include GLEW
+/// Include GLEW
 #include <GL/glew.h>
 
-// Include GLFW
+/// Include GLFW
 #include <GLFW/glfw3.h>
 
 
-// Include GLM
+/// Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// texture loading
+/// texture loading
 #include "SOIL.h"
 
 #include "common/Shader.h"
@@ -41,7 +53,7 @@
 #include "CMap.h"
 #include "CGame.h"
 
-#include <GL/glxew.h> //for vsync
+#include <GL/glxew.h> /// for vsync
 
 
 CMap* generate_map(int level);
@@ -50,14 +62,12 @@ void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texInde
 
 int main()
 {
-
-    // creat graphic context;
+    /// creat graphic context to store graphics buffer ids effectively
     graphics_context context;
 
-
-
     /// graphics ini:
-    // Initialise GLFW
+
+    /// Initialise GLFW
     if( !glfwInit() )
     {
         fprintf( stderr, "Failed to initialize GLFW\n" );
@@ -71,19 +81,21 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    /// screen resolution todo: hard coded screen resolution bad idea
     context.resWidth = 1920;//1024;
     context.resHeight = 1080;//768;
-            // Open a context.window and create its OpenGL context
+
+    /// Open a context.window and create its OpenGL context
     context.window = glfwCreateWindow( context.resWidth, context.resHeight, "LASER CHESS", NULL, NULL);
     if( context.window == NULL ){
-        fprintf( stderr, "Failed to open GLFW context.window. If you have an old Intel GPU, they are not 3.3 compatible.\n" );
+        fprintf( stderr, "Failed to open GLFW window. If you have an old Intel GPU, they are not 3.3 compatible.\n" );
         getchar();
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(context.window);
 
-    // Initialize GLEW
+    /// Initialize GLEW
     glewExperimental = 1; // Needed for core profile
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
@@ -92,7 +104,7 @@ int main()
         return -1;
     }
 
-    //activating vsync on linux
+    /// activating vsync on linux
     Display *dpy = glXGetCurrentDisplay();
     GLXDrawable drawable = glXGetCurrentDrawable();
     const int interval = 1;
@@ -100,26 +112,21 @@ int main()
         glXSwapIntervalEXT(dpy, drawable, interval);
     }
 
-    // Ensure we can capture the escape key being pressed below
+    /// Ensure we can capture the escape key being pressed below
     glfwSetInputMode(context.window, GLFW_STICKY_KEYS, GL_TRUE);
-    // Hide the mouse and enable unlimited mouvement
-    //glfwSetInputMode(context.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // todo: comment out
 
-    // Set the mouse at the center of the screen
+    /// Set the mouse at the center of the screen
     glfwPollEvents();
 
     glfwSetCursorPos(context.window, context.resWidth/2, context.resHeight/2);
 
-    // Dark blue background
+    /// Dark blue background
     glClearColor(0.1f, 0.0f, 0.2f, 0.0f);
 
 
-
-    ///MSAA
+    /// MSAA -->
     int msaaCount = 4;
     // create a MSAA framebuffer object
-    // NOTE: All attachment images must have the same # of samples.
-    // Ohterwise, the framebuffer status will not be completed.
     glGenFramebuffers(1, &context.fboMsaaId);
     glBindFramebuffer(GL_FRAMEBUFFER, context.fboMsaaId);
 
@@ -130,11 +137,6 @@ int main()
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     // create a MSAA renderbuffer object to store depth info
-    // NOTE: A depth renderable image should be attached the FBO for depth test.
-    // If we don't attach a depth renderable image to the FBO, then
-    // the rendering output will be corrupted because of missing depth test.
-    // If you also need stencil test for your rendering, then you must
-    // attach additional image to the stencil attachement point, too.
     glGenRenderbuffers(1, &context.rboDepthId);
     glBindRenderbuffer(GL_RENDERBUFFER, context.rboDepthId);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount, GL_DEPTH_COMPONENT, context.resWidth, context.resHeight);
@@ -143,17 +145,15 @@ int main()
     // attach msaa RBOs to FBO attachment points
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, context.rboColorId);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, context.rboDepthId);
-
-    ///end MSAA
-
+    /// --> end MSAA
 
 
-    // Enable depth test
+    /// Enable depth test
     glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
+    /// Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    // Cull triangles which normal is not towards the camera
+    /// Cull triangles whith normal is towards the camera
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
@@ -163,15 +163,15 @@ int main()
     CShader *myShader = CShader::createShaderProgram("../StandardShading.vertexshader", nullptr, nullptr, nullptr, "../StandardShading.fragmentshader" );
     context.programID = myShader->getID();
 
-    // Get a handle for our "MVP" uniform
+    /// Get a handle for our "MVP" uniform
     context.MatrixID = glGetUniformLocation(context.programID, "MVP");
     context.ViewMatrixID = glGetUniformLocation(context.programID, "V");
     context.ModelMatrixID = glGetUniformLocation(context.programID, "M");
 
-    // Load the texture
+    /// Load the texture
     glGenTextures(4, context.textures);
     loadImage_SOIL(context.textures,"../chessboard.jpg",0);
-    // Get a handle for our "myTextureSampler" uniform
+    /// Get a handle for our "myTextureSampler" uniform
     context.TextureID[0]  = glGetUniformLocation(context.programID, "myTextureSampler");
     loadImage_SOIL(context.textures,"../units/white2.jpg",1);
     context.TextureID[1]  = glGetUniformLocation(context.programID, "myTextureSampler");
@@ -182,6 +182,7 @@ int main()
     loadImage_SOIL(context.textures,"../health.jpg",4);
     context.TextureID[4]  = glGetUniformLocation(context.programID, "myTextureSampler");
 
+    /// initialize buffers for model loading
     glGenVertexArrays(9, context.VertexArrayID);
 
     std::vector<glm::vec3> indexed_vertices[9];
@@ -199,12 +200,11 @@ int main()
 
 
 
-    /// load units + chessboard
+    /// load units + chessboard + healthbar
     for(int i = 0; i < 9; ++i) {
         glBindVertexArray(context.VertexArrayID[i]);
 
-        // Read our .obj file
-        // todo: read 6 different objects!
+        /// Read our .obj file
         if(i==0) {
             bool res = loadAssImp("../chessboard.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
@@ -233,24 +233,25 @@ int main()
             bool res = loadAssImp("../health.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
         }
-        // Load it into a VBO
+        /// Load it into a VBO
         vaaV->push_back(new CVAA(vertexbuffer[i], indexed_vertices[i], 0, 3, 0, 0)); // 1rst attribute buffer : vertices
         vaaU->push_back(new CVAA(uvbuffer[i], indexed_uvs[i], 1, 2, 0, 0));  // 2nd attribute buffer : UVs
         vaaN->push_back(new CVAA(normalbuffer[i], indexed_normals[i], 2, 3, 0, 0));  // 3rd attribute buffer : normals
         vaaE->push_back(new CVAA(context.elementbuffer[i], context.indices[i]));  // Generate a buffer for the indices as well
     }
 
-    // Get a handle for our "LightPosition" uniform
+    /// Get a handle for our "LightPosition" uniform
     glUseProgram(context.programID);
     context.LightID = glGetUniformLocation(context.programID, "LightPosition_worldspace");
 
-    // For speed computation
+    /// For speed computation
     context.lastTime = glfwGetTime();
     context.nbFrames = 0;
+
+    /// load view parameters
     CView view(-30.0f,38.0f,-30.0f,3.14f/4.0f,-3.14f/5.1f);
 
-    // Compute the MVP
-    // glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
+    /// define orthografic view projection:
     context.ProjectionMatrix =  glm::ortho(10.0f*-context.resWidth/context.resHeight,10.0f*context.resWidth/context.resHeight,-10.0f,10.0f,0.1f, 100.0f);
     context.ViewMatrix = glm::lookAt(
             view.position,           // Camera is here
@@ -260,7 +261,7 @@ int main()
 
 
 
-    /// start game:
+    /// START GAME
     for(int Level = 1; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
@@ -279,8 +280,7 @@ int main()
     }
 
 
-    /// delete grafic buffers:
-    // Cleanup VBO and shader
+    /// Cleanup VBO and shader
     glDeleteBuffers(9, vertexbuffer);
     glDeleteBuffers(9, uvbuffer);
     glDeleteBuffers(9, normalbuffer);
@@ -300,14 +300,14 @@ int main()
     delete vaaN;
     delete vaaU;
     delete vaaV;
-    // Close OpenGL context.window and terminate GLFW
+
+    /// Close OpenGL context.window and terminate GLFW
     glfwTerminate();
-
-
 
     return 0;
 }
 
+/// generate figure placement in all three levels
 CMap* generate_map(int level) {
     auto map = new CMap();
     switch(level){
@@ -424,6 +424,7 @@ CMap* generate_map(int level) {
     return map;
 }
 
+/// use SOIL for texture loading
 void loadImage_SOIL(GLuint* textures,const char* imagepath, unsigned int texIndex) {
 
     int width, height;

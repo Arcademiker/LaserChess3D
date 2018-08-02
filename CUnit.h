@@ -33,12 +33,17 @@ public:
     int shot(int dir_x, int dir_y);
     virtual bool attack(int to_x, int to_y) = 0;
     virtual bool attack(int target_id) = 0;
+    /// calculate unit specific move options
     virtual void calc_move_area() = 0;
+    /// calculate unit specific attack options
     virtual bool calc_attack_options() = 0;
+    /// calculate unit specific area of attack
     virtual void calc_attack_area() = 0;
     virtual std::vector<std::vector<bool>>* get_player_optons() = 0;
     virtual std::vector<std::vector<bool>>* get_attack_range() = 0;
+    /// perform Unit type specific move
     virtual bool do_move(GLFWwindow* window) = 0;
+    /// perform Unit type specific attack
     virtual bool do_attack(GLFWwindow* window) = 0;
     virtual bool is_abort() = 0;
 };

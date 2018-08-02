@@ -20,6 +20,7 @@ void CCommandUnit::calc_attack_area() {
 
 
 bool CCommandUnit::do_move(GLFWwindow* window) {
+    /// calculate evasion move
     this->evasion_area.clear();
     this->evasion_area = std::vector<int>(3,0);
 
@@ -47,6 +48,7 @@ bool CCommandUnit::do_move(GLFWwindow* window) {
     //std::cout << "evasion" << std::endl;
     //std::cout << this->evasion_area[0] << " " << this->evasion_area[1] << " " << this->evasion_area[2] << std::endl;
 
+    ///move Command Unit
     if(this->map->is_inbound(this->x,this->y-1) && this->map->get(this->x,this->y-1) == 0
        && this->evasion_area[0]  < this->evasion_area[1] && (this->evasion_area[0] < this->evasion_area[2] || !this->map->is_inbound(this->x,this->y+1))) {
         this->move(this->x,this->y-1);

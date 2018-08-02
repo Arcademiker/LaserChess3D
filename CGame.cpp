@@ -17,15 +17,16 @@ CGame::~CGame() {
     delete EMap;
 }
 
+/// Main Game Loop
 int CGame::gameloop() {
     int step = 0;
     do {
-        ///calculate next game logic step
+        /// calculate next game logic step
         step = this->logic_step(step);
 
-        ///draw game state
+        /// draw game state
         if((step==4 || step==8) && !(this->old_x == this->U->get_x() && this->old_y == this->U->get_y())) {
-            ///move animation phase:
+            /// draw loop for move animation phase:
             for(this->anime = 0; this->anime < 20; ++this->anime) {
                 this->drawGame(step);
             }
@@ -33,6 +34,7 @@ int CGame::gameloop() {
             this->drawGame(step);
         }
 
+        /// test victory conditions
         if(step == -1 || step == -2 ) {
             break;
         }
@@ -47,10 +49,24 @@ int CGame::gameloop() {
     return 1;
 }
 
+/// 10 different Game states called by the Main Game Loop
+/// Game Step --> draw --> Game Step --> draw ...
+/// player turn
+///     Step 0: load all player Units
+///     Step 1: Player can choose one of his Units to operate
+///     Step 2: calculate possible fields for movement of player Unit
+///     Step 3: check if user input matches possible fields for movement
+///     Step 4: calculate possible fields for player Unit attacks against AI Units
+///     Step 5: check if user input matches possible fields for attack
+///     Step 6: remove current Unit from operateable Units in this turn
+/// AI turn
+///     Step 7: Check player victory conditions and load all AI Units
+///     Step 8: Move and Attack with each AI unit one at a time
+///     Step 9: Check AI victory conditions
 int CGame::logic_step(int step) {
     switch(step) {
         case 0: {
-            /// player turn
+
             for(auto& Unit: *this->map->get_unit_list()) {
                 this->UMap->insert(Unit);
             }
@@ -129,7 +145,6 @@ int CGame::logic_step(int step) {
         }
         case 7: {
             this->UMap->clear();
-            /// AI turn
             if (this->map->get_enemys_list()->empty() || this->map->get_commandU_counter() <= 0) {
                 //this->map->listAllUnits();
                 //std::cout << std::endl << "!PLAYER WINS!" << std::endl;
@@ -176,6 +191,7 @@ int CGame::logic_step(int step) {
     return step;
 }
 
+/// draw current game state (step)
 void CGame::drawGame(int step) {
     // Measure speed
     //double currentTime = glfwGetTime();
@@ -186,9 +202,6 @@ void CGame::drawGame(int step) {
     //    this->context->nbFrames = 0;
     //    this->context->lastTime += 1.0;
     //}
-
-
-
 
     // set the rendering destination to FBO
     glBindFramebuffer(GL_FRAMEBUFFER, this->context->fboMsaaId);
@@ -214,26 +227,27 @@ void CGame::drawGame(int step) {
     this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(7, -0.5, 7));//glm::mat4(1.0);
     this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
 
-    // Send our transformation to the currently bound shader,
-    // in the "MVP" uniform
+    /// Send our transformation to the currently bound shader,
+    /// in the "MVP" uniform
     glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
     glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
     glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
 
 
-    // Bind our texture in Texture Unit 0
+    /// Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->context->textures[0]);
-    // Set our "myTextureSampler" sampler to use Texture Unit 0
+    /// Set our "myTextureSampler" sampler to use Texture Unit 0
     glUniform1i(this->context->TextureID[0], 0);
 
 
     glBindVertexArray(this->context->VertexArrayID[0]);
-    // Index buffer
+
+    /// Index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[0]);
 
-    // Draw the triangles !
+    /// Draw the triangles !
     glDrawElements(
             GL_TRIANGLES,      // mode
             this->context->indices[0].size(),    // count
@@ -250,31 +264,32 @@ void CGame::drawGame(int step) {
                 if(this->U->get_player_optons()->at(y).at(x) || (y == this->U->get_y() && x == this->U->get_x())) {
                     this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*x, 0, 2*y));//glm::mat4(1.0);
                     this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
-                    // Send our transformation to the currently bound shader,
-                    // in the "MVP" uniform
+                    /// Send our transformation to the currently bound shader,
+                    /// in the "MVP" uniform
                     glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
                     glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
                     glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
                     if(step == 3) {
-                        // Bind our texture in Texture Unit 0
+                        /// Bind our texture in Texture Unit 1
                         glActiveTexture(GL_TEXTURE0);
                         glBindTexture(GL_TEXTURE_2D, this->context->textures[1]);
                         // Set our "myTextureSampler" sampler to use Texture Unit 0
                         glUniform1i(this->context->TextureID[1], 1);
                     } else {
-                        // Bind our texture in Texture Unit 0
+                        /// Bind our texture in Texture Unit 3 (Unit already did this turn color...)
                         glActiveTexture(GL_TEXTURE0);
                         glBindTexture(GL_TEXTURE_2D, this->context->textures[3]);
-                        // Set our "myTextureSampler" sampler to use Texture Unit 0
+                        /// Set our "myTextureSampler" sampler to use Texture Unit 0
                         glUniform1i(this->context->TextureID[3], 3);
                     }
 
                     glBindVertexArray(this->context->VertexArrayID[7]);
-                    // Index buffer
+
+                    /// Index buffer
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[7]);
 
-                    // Draw the triangles !
+                    /// Draw the triangles !
                     glDrawElements(
                             GL_TRIANGLES,      // mode
                             this->context->indices[7].size(),    // count
@@ -312,32 +327,29 @@ void CGame::drawGame(int step) {
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
         int i = U.second->get_type();
 
-        // Send our transformation to the currently bound shader,
-        // in the "MVP" uniform
+        /// Send our transformation to the currently bound shader,
+        /// in the "MVP" uniform
         glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
         glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
         glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
-
+        /// same as above
         if(this->UMap->count(U.first) != 0) {
-            // Bind our texture in Texture Unit 0
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, this->context->textures[1]);
-            // Set our "myTextureSampler" sampler to use Texture Unit 0
             glUniform1i(this->context->TextureID[1], 1);
         } else {
-            // Bind our texture in Texture Unit 0
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, this->context->textures[3]);
-            // Set our "myTextureSampler" sampler to use Texture Unit 0
             glUniform1i(this->context->TextureID[3], 3);
         }
 
         glBindVertexArray(this->context->VertexArrayID[i]);
-        // Index buffer
+
+        /// Index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[i]);
 
-        // Draw the triangles !
+        /// Draw the triangles !
         glDrawElements(
                 GL_TRIANGLES,      // mode
                 this->context->indices[i].size(),    // count
@@ -371,26 +383,24 @@ void CGame::drawGame(int step) {
                     this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x() + 0.2, 1.0f+k*0.08f+high, 2*U.second->get_y() - 0.4f));
                 }
                 this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
-                // Send our transformation to the currently bound shader,
-                // in the "MVP" uniform
+
+                /// Send our transformation to the currently bound shader,
+                /// in the "MVP" uniform
                 glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
                 glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
                 glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
 
-
-                // Bind our texture in Texture Unit 0
+                /// same as above
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, this->context->textures[4]);
-                // Set our "myTextureSampler" sampler to use Texture Unit 0
                 glUniform1i(this->context->TextureID[4], 4);
-
-
                 glBindVertexArray(this->context->VertexArrayID[8]);
-                // Index buffer
+
+                /// Index buffer
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[8]);
 
-                // Draw the triangles !
+                /// Draw the triangles !
                 glDrawElements(
                         GL_TRIANGLES,      // mode
                         this->context->indices[8].size(),    // count
@@ -431,14 +441,13 @@ void CGame::drawGame(int step) {
                                                          glm::vec3(0, 1, 0));
             }
         } else {
-            this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
+            this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));
         }
-       // this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
         int i = E.second->get_type();
 
-        // Send our transformation to the currently bound shader,
-        // in the "MVP" uniform
+        /// Send our transformation to the currently bound shader,
+        /// in the "MVP" uniform
         glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
         glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
         glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
@@ -446,18 +455,16 @@ void CGame::drawGame(int step) {
         glm::vec3 lightPos = glm::vec3(4, 4, 4);
         glUniform3f(this->context->LightID, lightPos.x, lightPos.y, lightPos.z);
 
-        // Bind our texture in Texture Unit 0
+        /// same as above
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, this->context->textures[2]);
-        // Set our "myTextureSampler" sampler to use Texture Unit 0
         glUniform1i(this->context->TextureID[2], 2);
-
-
         glBindVertexArray(this->context->VertexArrayID[i]);
-        // Index buffer
+
+        /// Index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[i]);
 
-        // Draw the triangles !
+        /// Draw the triangles !
         glDrawElements(
                 GL_TRIANGLES,      // mode
                 this->context->indices[i].size(),    // count
@@ -487,26 +494,23 @@ void CGame::drawGame(int step) {
                     this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x() - 0.3, 1.0f+k*0.08f+high, 2*E.second->get_y() - 0.3f-wide));
                 }
                 this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
-                // Send our transformation to the currently bound shader,
-                // in the "MVP" uniform
+                /// Send our transformation to the currently bound shader,
+                /// in the "MVP" uniform
                 glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
                 glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
                 glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
 
 
-
-                // Bind our texture in Texture Unit 0
+                /// same as above
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, this->context->textures[4]);
-                // Set our "myTextureSampler" sampler to use Texture Unit 0
                 glUniform1i(this->context->TextureID[4], 4);
-
-
                 glBindVertexArray(this->context->VertexArrayID[8]);
-                // Index buffer
+
+                /// Index buffer
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[8]);
 
-                // Draw the triangles !
+                /// Draw the triangles !
                 glDrawElements(
                         GL_TRIANGLES,      // mode
                         this->context->indices[8].size(),    // count
@@ -528,8 +532,6 @@ void CGame::drawGame(int step) {
 
     ///MSAA
     // copy rendered image from MSAA (multi-sample) to normal (single-sample) FBO
-    // NOTE: The multi samples at a pixel in read buffer will be converted
-    // to a single sample at the target pixel in draw buffer.
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->context->fboMsaaId);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
@@ -538,16 +540,8 @@ void CGame::drawGame(int step) {
                       GL_COLOR_BUFFER_BIT, // buffer mask
                       GL_LINEAR);                           // scale filter
 
-    // trigger mipmaps generation explicitly
-    // NOTE: If GL_GENERATE_MIPMAP is set to GL_TRUE, then glCopyTexSubImage2D()
-    // triggers mipmap generation automatically. However, the texture attached
-    // onto a FBO should generate mipmaps manually via glGenerateMipmap().
-    //glBindTexture(GL_TEXTURE_2D, this->context->textureId);
-    //glGenerateMipmap(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, 0);
-
-    // back to normal window-system-provided framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // unbind
+    /// back to normal window-system-provided framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
     /// Swap buffers
@@ -556,7 +550,7 @@ void CGame::drawGame(int step) {
 }
 
 
-
+/// get field x y coordinates for player mouse click
 bool CGame::user_input() {
     int newState = GLFW_RELEASE;
     double xpos, ypos;

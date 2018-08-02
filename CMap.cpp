@@ -30,7 +30,7 @@ CMap::~CMap() {
     enemy_list.clear();
 }
 
-
+/// check if x,y is a place on the map inside the boundaries
 bool CMap::is_inbound(int x, int y) {
     return y >= 0 && x >=0 && y < this->grid.size() && x < this->grid[0].size();
 }
@@ -39,6 +39,7 @@ unsigned int CMap::get_size() {
     return this->size;
 }
 
+/// get number of CommandUnits (for player victory conditions)
 int CMap::get_commandU_counter() {
     return this->commandU_counter;
 }
@@ -48,6 +49,7 @@ int CMap::get(int x, int y) {
     return this->grid[y][x];
 }
 
+/// get unit on field x,y or if empty = 0
 CUnit* CMap::get_unit(int x, int y) {
     int id = this->get(x,y);
     if(id != 0) {
@@ -58,6 +60,7 @@ CUnit* CMap::get_unit(int x, int y) {
     }
 }
 
+/// get Unit with id
 CUnit* CMap::get_unit(int id) {
     if(id < 0) {
         return this->enemy_list.at(id);
@@ -70,6 +73,7 @@ CUnit* CMap::get_unit(int id) {
     }
 }
 
+/// add Unit with specific type on map and generate an id for the Unit
 /// warning: replaces unit if space is occupied
 /// buggy but user doesn't add units manually. cannot occur ingame if level is createtd properly
 void CMap::add_unit(int type, int x, int y) {
@@ -111,6 +115,7 @@ void CMap::add_unit(int type, int x, int y) {
     }
 }
 
+/// kill unit with id and remove it from the board and the unit lists
 bool CMap::kill_unit(int id) {
     std::unordered_map<int,CUnit*>* pList;
     if(id<0) {
@@ -131,7 +136,8 @@ bool CMap::kill_unit(int id) {
 
 }
 
-//attention this function doesn't update the new location in the unit class
+/// move unit on board from one location x,y to loaction x,y
+/// attention this function doesn't update the new location in the unit class
 bool CMap::move(int x, int y, int to_x, int to_y) {
     int id = this->get(x, y);
     if(this->get(to_x, to_y)==0){
@@ -144,6 +150,7 @@ bool CMap::move(int x, int y, int to_x, int to_y) {
     }
 }
 
+/// get diagonal distance on the map between two points
 int CMap::distance(int x, int y, int to_x, int to_y) {
     return std::max(std::abs(x-to_x),std::abs(y-to_y)); /// diagonal distance
 }

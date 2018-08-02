@@ -21,6 +21,7 @@ void CDrone::calc_attack_area() {
 bool CDrone::do_move(GLFWwindow* window) {
     if(this->x == 0) {
         while (!this->map->get_unit_list()->empty()) {
+            /// reaches the end of the board AI wins
             this->map->kill_unit(this->map->get_unit_list()->begin()->first);
         }
     }
