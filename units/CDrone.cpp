@@ -33,25 +33,25 @@ bool CDrone::do_move(GLFWwindow* window) {
 
 bool CDrone::do_attack(GLFWwindow* window) {
     ///attack:
+    std::multimap<int,int,std::greater<int>> targets;
     int target1_id = this->shot(-1,-1);
-    int target2_id = this->shot(-1,-1);
-    if(target1_id && target2_id) { /// both shots would hit a target. Hit the most valuable
-        if(this->map->get_unit(target1_id)->get_type() > this->map->get_unit(target2_id)->get_type()) {
-            if(this->map->get_unit(target1_id)->get_type() > 3) {
-                this->attack(target1_id);
-            }
-        }
-        else {
-            if(this->map->get_unit(target1_id)->get_type() > 3) {
-                this->attack(target2_id);
-            }
-        }
+    int target2_id = this->shot(-1, 1);
+    int target3_id = this->shot( 1,-1);
+    int target4_id = this->shot( 1, 1);
+    if(target1_id != 0 && this->map->get_unit(target1_id)->get_type() > 3) {
+        targets.insert({this->map->get_unit(target1_id)->get_type(),target1_id});
     }
-    else if(target1_id && this->map->get_unit(target1_id)->get_type() > 3) {
-        this->attack(target1_id);
+    if(target2_id != 0 && this->map->get_unit(target2_id)->get_type() > 3) {
+        targets.insert({this->map->get_unit(target2_id)->get_type(),target2_id});
     }
-    else if(target2_id && this->map->get_unit(target1_id)->get_type() > 3) {
-        this->attack(target2_id);
+    if(target3_id != 0 && this->map->get_unit(target3_id)->get_type() > 3) {
+        targets.insert({this->map->get_unit(target3_id)->get_type(),target3_id});
     }
+    if(target4_id != 0 && this->map->get_unit(target4_id)->get_type() > 3) {
+        targets.insert({this->map->get_unit(target4_id)->get_type(),target4_id});
+    }
+    this->attack(targets.begin()->second);
+    targets.clear();
+
     return true;
 }

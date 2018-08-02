@@ -144,37 +144,6 @@ int main()
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, context.rboColorId);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, context.rboDepthId);
 
-    /*
-    // create a normal (no MSAA) FBO to hold a render-to-texture
-    glGenFramebuffers(1, &context.fboId);
-    glBindFramebuffer(GL_FRAMEBUFFER, context.fboId);
-
-    glGenRenderbuffers(1, &context.rboId);
-    glBindRenderbuffer(GL_RENDERBUFFER, context.rboId);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, context.resWidth, context.resHeight);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    // attach a texture to FBO color attachement point
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, context.textureId, 0);
-
-    // attach a rbo to FBO depth attachement point
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, context.rboId);
-
-    //@@ disable color buffer if you don't attach any color buffer image,
-    //@@ for example, rendering the depth buffer only to a texture.
-    //@@ Otherwise, glCheckFramebufferStatus will not be complete.
-    //glDrawBuffer(GL_NONE);
-    //glReadBuffer(GL_NONE);
-
-    // check FBO status
-    //printFramebufferInfo(fboMsaaId);
-    //bool status = checkFramebufferStatus(fboMsaaId);
-    //if(!status) {
-    //    std::cout << "fboUsed = false" << std::endl;
-    //}
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    */
     ///end MSAA
 
 
@@ -210,16 +179,18 @@ int main()
     context.TextureID[2]  = glGetUniformLocation(context.programID, "myTextureSampler");
     loadImage_SOIL(context.textures,"../units/target2.jpg",3);
     context.TextureID[3]  = glGetUniformLocation(context.programID, "myTextureSampler");
+    loadImage_SOIL(context.textures,"../health.jpg",4);
+    context.TextureID[4]  = glGetUniformLocation(context.programID, "myTextureSampler");
 
-    glGenVertexArrays(8, context.VertexArrayID);
+    glGenVertexArrays(9, context.VertexArrayID);
 
-    std::vector<glm::vec3> indexed_vertices[8];
-    std::vector<glm::vec2> indexed_uvs[8];
-    std::vector<glm::vec3> indexed_normals[8];
+    std::vector<glm::vec3> indexed_vertices[9];
+    std::vector<glm::vec2> indexed_uvs[9];
+    std::vector<glm::vec3> indexed_normals[9];
 
-    GLuint vertexbuffer[8];
-    GLuint uvbuffer[8];
-    GLuint normalbuffer[8];
+    GLuint vertexbuffer[9];
+    GLuint uvbuffer[9];
+    GLuint normalbuffer[9];
 
     auto vaaV = new std::vector<CVAA*>;
     auto vaaU = new std::vector<CVAA*>;
@@ -229,7 +200,7 @@ int main()
 
 
     /// load units + chessboard
-    for(int i = 0; i < 8; ++i) {
+    for(int i = 0; i < 9; ++i) {
         glBindVertexArray(context.VertexArrayID[i]);
 
         // Read our .obj file
@@ -255,8 +226,11 @@ int main()
         } else if(i == 6){
             bool res = loadAssImp("../units/tank.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
-        } else {
+        } else if(i == 7) {
             bool res = loadAssImp("../options2.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
+                                  indexed_normals[i]);
+        } else {
+            bool res = loadAssImp("../health.obj", context.indices[i], indexed_vertices[i], indexed_uvs[i],
                                   indexed_normals[i]);
         }
         // Load it into a VBO
@@ -287,7 +261,7 @@ int main()
 
 
     /// start game:
-    for(int Level = 3; Level <= 3; ++Level) {
+    for(int Level = 1; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
         std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
@@ -307,13 +281,13 @@ int main()
 
     /// delete grafic buffers:
     // Cleanup VBO and shader
-    glDeleteBuffers(8, vertexbuffer);
-    glDeleteBuffers(8, uvbuffer);
-    glDeleteBuffers(8, normalbuffer);
-    glDeleteBuffers(8, context.elementbuffer);
+    glDeleteBuffers(9, vertexbuffer);
+    glDeleteBuffers(9, uvbuffer);
+    glDeleteBuffers(9, normalbuffer);
+    glDeleteBuffers(9, context.elementbuffer);
     glDeleteProgram(context.programID);
-    glDeleteTextures(4, context.textures);
-    glDeleteVertexArrays(8, context.VertexArrayID);
+    glDeleteTextures(5, context.textures);
+    glDeleteVertexArrays(9, context.VertexArrayID);
 
     glDeleteFramebuffers(1, &context.fboId);
     context.fboId = 0;

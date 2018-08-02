@@ -306,7 +306,7 @@ void CGame::drawGame(int step) {
                 //this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
             }
         } else {
-            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
+            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));
 
         }
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
@@ -346,6 +346,61 @@ void CGame::drawGame(int step) {
         );
 
         glBindVertexArray(0);
+
+        /// draw health
+        if((U.second->get_type() < 6 && U.second->get_health() != 2) || (U.second->get_type() == 6 && U.second->get_health() != 4)) {
+            float high = 0.0f;
+            if(U.second->get_type() == 4) {
+                high = 0.35f;
+            }
+            for(int k = 0; k<U.second->get_health() ; ++k) {
+                if(step == 4 && U.first == this->id) {
+                    ///animate movement:
+                    if(U.second->get_type() == 5) {
+                        this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(
+                                2.0f * this->old_x + ((2.0f * U.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f + 0.2f,
+                                (-(anime-10.0f)*(anime-10.0f)+100.0f)/50.f + 1.0f+k*0.08f+high,
+                                2.0f * this->old_y + ((2.0f * U.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f - 0.4f) );
+                    } else {
+                        this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(
+                                2.0f * this->old_x + ((2.0f * U.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f + 0.2f,
+                                1.0f+k*0.08f+high,
+                                2.0f * this->old_y + ((2.0f * U.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f - 0.4f) );
+                    }
+                } else {
+                    this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x() + 0.2, 1.0f+k*0.08f+high, 2*U.second->get_y() - 0.4f));
+                }
+                this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+                // Send our transformation to the currently bound shader,
+                // in the "MVP" uniform
+                glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
+                glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
+                glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
+
+
+
+                // Bind our texture in Texture Unit 0
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, this->context->textures[4]);
+                // Set our "myTextureSampler" sampler to use Texture Unit 0
+                glUniform1i(this->context->TextureID[4], 4);
+
+
+                glBindVertexArray(this->context->VertexArrayID[8]);
+                // Index buffer
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[8]);
+
+                // Draw the triangles !
+                glDrawElements(
+                        GL_TRIANGLES,      // mode
+                        this->context->indices[8].size(),    // count
+                        GL_UNSIGNED_SHORT, // type
+                        (void *) 0           // element array buffer offset
+                );
+
+                glBindVertexArray(0);
+            }
+        }
 
     }
 
@@ -409,6 +464,59 @@ void CGame::drawGame(int step) {
                 GL_UNSIGNED_SHORT, // type
                 (void *) 0           // element array buffer offset
         );
+
+        /// draw health
+        if((E.second->get_type() == 1 && E.second->get_health() != 2) || (E.second->get_type() > 1 && E.second->get_health() != 5)) {
+            float high = 0.0f;
+            float wide = 0.0f;
+            if(E.second->get_type() == 3) {
+                high = 0.35f;
+            }
+            if(E.second->get_type() == 2) {
+                wide = 0.2f;
+            }
+            for(int k = 0; k<E.second->get_health() ; ++k) {
+                if(step == 8 && this->E == E.second && !(this->old_x == this->E->get_x() && this->old_y == this->E->get_y())) {
+                    ///animate movement:
+                    this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(
+                            2.0f * this->old_x + ((2.0f * E.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f - 0.3f,
+                            1.0f+k*0.08f+high,
+                            2.0f * this->old_y + ((2.0f * E.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f - 0.3f-wide) );
+
+                } else {
+                    this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x() - 0.3, 1.0f+k*0.08f+high, 2*E.second->get_y() - 0.3f-wide));
+                }
+                this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+                // Send our transformation to the currently bound shader,
+                // in the "MVP" uniform
+                glUniformMatrix4fv(this->context->MatrixID, 1, GL_FALSE, &this->context->MVP[0][0]);
+                glUniformMatrix4fv(this->context->ModelMatrixID, 1, GL_FALSE, &this->context->ModelMatrix[0][0]);
+                glUniformMatrix4fv(this->context->ViewMatrixID, 1, GL_FALSE, &this->context->ViewMatrix[0][0]);
+
+
+
+                // Bind our texture in Texture Unit 0
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, this->context->textures[4]);
+                // Set our "myTextureSampler" sampler to use Texture Unit 0
+                glUniform1i(this->context->TextureID[4], 4);
+
+
+                glBindVertexArray(this->context->VertexArrayID[8]);
+                // Index buffer
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->context->elementbuffer[8]);
+
+                // Draw the triangles !
+                glDrawElements(
+                        GL_TRIANGLES,      // mode
+                        this->context->indices[8].size(),    // count
+                        GL_UNSIGNED_SHORT, // type
+                        (void *) 0           // element array buffer offset
+                );
+
+                glBindVertexArray(0);
+            }
+        }
 
         glBindVertexArray(0);
     }

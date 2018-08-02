@@ -46,7 +46,6 @@ void CDreadnought::calc_attack_area() {
 bool CDreadnought::do_move(GLFWwindow* window) {
     /// move:
     /// smater AI if it avoids damage while closing in?
-    /// what if it runs into own unit?
     if(this->get_nearest()!=0) {
         CUnit *enemy = this->map->get_unit(this->get_nearest()); /// get nearest enemy
 
