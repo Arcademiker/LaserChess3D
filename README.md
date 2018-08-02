@@ -1,4 +1,6 @@
 # LaserChess3D
+![laserchess](https://user-images.githubusercontent.com/15786772/43614662-9d22470a-96b4-11e8-9ae4-921a3d7bf322.png)
+
 ```
 Game Overview:
 The Game has 3 Levels:
