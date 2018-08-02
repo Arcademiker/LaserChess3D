@@ -20,6 +20,18 @@ struct graphics_context {
     GLFWwindow* window;
     double lastTime;
     int nbFrames;
+
+    GLuint fboMsaaId;
+    GLuint rboColorId;
+    GLuint rboDepthId;
+    GLuint fboId;
+    GLuint rboId;
+    GLuint textureId;
+
+
+    int resWidth;
+    int resHeight;
+
     GLuint programID;
 
     GLuint TextureID[4];
@@ -52,6 +64,9 @@ private:
     int round;
     int id;
     int oldState;
+    int old_x;
+    int old_y;
+    int anime;
     CMap* map;
 public:
     CGame(CMap* map, graphics_context* context);

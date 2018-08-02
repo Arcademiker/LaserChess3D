@@ -21,7 +21,15 @@ int CGame::gameloop() {
     int step = 0;
     do {
         step = this->logic_step(step);
-        this->drawGame(step);
+        if(step==4) {
+            ///move animation phase:
+            for(this->anime = 0; this->anime < 60; ++this->anime) {
+                this->drawGame(step);
+            }
+        } else {
+            this->drawGame(step);
+        }
+
         if(step == -1 || step == -2 ) {
             break;
         }
@@ -71,6 +79,8 @@ int CGame::logic_step(int step) {
             this->U->calc_move_area();
             this->print_options(U);
             step = 3;
+            this->old_x = this->U->get_x();
+            this->old_y = this->U->get_y();
             break;
         }
         case 3: {
@@ -170,13 +180,24 @@ void CGame::drawGame(int step) {
         this->context->lastTime += 1.0;
     }
 
+
+
+
+    // set the rendering destination to FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, this->context->fboMsaaId);
+
     /// Clear the screen
+    // clear buffer
+    glClearColor(0.05f, 0.0f, 0.1f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
 
     /// Use the shader
     glUseProgram(this->context->programID);
 
-    glm::vec3 lightPos = glm::vec3(8, 8, 8);
+    glm::vec3 lightPos = glm::vec3(7.5, 9, 7.5);
     glUniform3f(this->context->LightID, lightPos.x, lightPos.y, lightPos.z);
 
 
@@ -263,10 +284,17 @@ void CGame::drawGame(int step) {
 
     /// draw player Units
     for (auto &U: *this->map->get_unit_list()) {
-        int i = U.second->get_type();
+        if(step == 4 && U.first == this->id) {
+            ///animate movement:
+            //his->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3((2*U.second->get_x()*anime)/60, 0, (2*U.second->get_y()*anime)/60));//glm::mat4(1.0);
+            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
+            this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+        } else {
+            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
+            this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+        }
 
-        this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
-        this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+        int i = U.second->get_type();
 
         // Send our transformation to the currently bound shader,
         // in the "MVP" uniform
@@ -302,6 +330,7 @@ void CGame::drawGame(int step) {
         );
 
         glBindVertexArray(0);
+
     }
 
     //todo: draw used units different
@@ -348,7 +377,31 @@ void CGame::drawGame(int step) {
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
 
-    // Swap buffers
+    ///MSAA
+    // copy rendered image from MSAA (multi-sample) to normal (single-sample) FBO
+    // NOTE: The multi samples at a pixel in read buffer will be converted
+    // to a single sample at the target pixel in draw buffer.
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->context->fboMsaaId);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+    glBlitFramebuffer(0, 0, this->context->resWidth, this->context->resHeight,  // src rect
+                      0, 0, this->context->resWidth, this->context->resHeight,  // dst rect
+                      GL_COLOR_BUFFER_BIT, // buffer mask
+                      GL_LINEAR);                           // scale filter
+
+    // trigger mipmaps generation explicitly
+    // NOTE: If GL_GENERATE_MIPMAP is set to GL_TRUE, then glCopyTexSubImage2D()
+    // triggers mipmap generation automatically. However, the texture attached
+    // onto a FBO should generate mipmaps manually via glGenerateMipmap().
+    //glBindTexture(GL_TEXTURE_2D, this->context->textureId);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+
+    // back to normal window-system-provided framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // unbind
+
+
+    /// Swap buffers
     glfwSwapBuffers(this->context->window);
     glfwPollEvents();
 }
@@ -362,8 +415,11 @@ bool CGame::user_input() {
 
     if (glfwGetMouseButton(this->context->window, GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS) {
         newState = GLFW_PRESS;
-        auto y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
-        auto x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
+        float diagUpDown = 63.0f*(context->resHeight/768.0f);
+        float diagLeRe = 108.0f*(context->resHeight/768.0f);
+        float PointZero = 934.0f;
+        auto y = static_cast<int>((xpos-context->resWidth/2.0f)/diagLeRe+(PointZero-ypos)/diagUpDown);
+        auto x = static_cast<int>((PointZero-ypos)/diagUpDown-(xpos-context->resWidth/2.0f)/diagLeRe);
         if(y>=0 && y<8 && x >=0 && x < 8) {
             this->id = this->map->get(x, y);
         } else {

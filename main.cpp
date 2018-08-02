@@ -71,10 +71,10 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
-
-    // Open a context.window and create its OpenGL context
-    context.window = glfwCreateWindow( 1024, 768, "LASER CHESS", NULL, NULL);
+    context.resWidth = 1920;//1024;
+    context.resHeight = 1080;//768;
+            // Open a context.window and create its OpenGL context
+    context.window = glfwCreateWindow( context.resWidth, context.resHeight, "LASER CHESS", NULL, NULL);
     if( context.window == NULL ){
         fprintf( stderr, "Failed to open GLFW context.window. If you have an old Intel GPU, they are not 3.3 compatible.\n" );
         getchar();
@@ -99,10 +99,77 @@ int main()
 
     // Set the mouse at the center of the screen
     glfwPollEvents();
-    glfwSetCursorPos(context.window, 1024/2, 768/2);
+
+    glfwSetCursorPos(context.window, context.resWidth/2, context.resHeight/2);
 
     // Dark blue background
     glClearColor(0.1f, 0.0f, 0.2f, 0.0f);
+
+
+
+    ///MSAA
+    int msaaCount = 4;
+    // create a MSAA framebuffer object
+    // NOTE: All attachment images must have the same # of samples.
+    // Ohterwise, the framebuffer status will not be completed.
+    glGenFramebuffers(1, &context.fboMsaaId);
+    glBindFramebuffer(GL_FRAMEBUFFER, context.fboMsaaId);
+
+    // create a MSAA renderbuffer object to store color info
+    glGenRenderbuffers(1, &context.rboColorId);
+    glBindRenderbuffer(GL_RENDERBUFFER, context.rboColorId);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount, GL_RGB8, context.resWidth, context.resHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // create a MSAA renderbuffer object to store depth info
+    // NOTE: A depth renderable image should be attached the FBO for depth test.
+    // If we don't attach a depth renderable image to the FBO, then
+    // the rendering output will be corrupted because of missing depth test.
+    // If you also need stencil test for your rendering, then you must
+    // attach additional image to the stencil attachement point, too.
+    glGenRenderbuffers(1, &context.rboDepthId);
+    glBindRenderbuffer(GL_RENDERBUFFER, context.rboDepthId);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount, GL_DEPTH_COMPONENT, context.resWidth, context.resHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // attach msaa RBOs to FBO attachment points
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, context.rboColorId);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, context.rboDepthId);
+
+    /*
+    // create a normal (no MSAA) FBO to hold a render-to-texture
+    glGenFramebuffers(1, &context.fboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, context.fboId);
+
+    glGenRenderbuffers(1, &context.rboId);
+    glBindRenderbuffer(GL_RENDERBUFFER, context.rboId);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, context.resWidth, context.resHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // attach a texture to FBO color attachement point
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, context.textureId, 0);
+
+    // attach a rbo to FBO depth attachement point
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, context.rboId);
+
+    //@@ disable color buffer if you don't attach any color buffer image,
+    //@@ for example, rendering the depth buffer only to a texture.
+    //@@ Otherwise, glCheckFramebufferStatus will not be complete.
+    //glDrawBuffer(GL_NONE);
+    //glReadBuffer(GL_NONE);
+
+    // check FBO status
+    //printFramebufferInfo(fboMsaaId);
+    //bool status = checkFramebufferStatus(fboMsaaId);
+    //if(!status) {
+    //    std::cout << "fboUsed = false" << std::endl;
+    //}
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    */
+    ///end MSAA
+
+
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -111,7 +178,7 @@ int main()
 
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
-
+    glFrontFace(GL_CCW);
 
 
 
@@ -129,11 +196,11 @@ int main()
     loadImage_SOIL(context.textures,"../chessboard.jpg",0);
     // Get a handle for our "myTextureSampler" uniform
     context.TextureID[0]  = glGetUniformLocation(context.programID, "myTextureSampler");
-    loadImage_SOIL(context.textures,"../units/white.jpg",1);
+    loadImage_SOIL(context.textures,"../units/white2.jpg",1);
     context.TextureID[1]  = glGetUniformLocation(context.programID, "myTextureSampler");
-    loadImage_SOIL(context.textures,"../units/black.jpeg",2);
+    loadImage_SOIL(context.textures,"../units/black2.jpeg",2);
     context.TextureID[2]  = glGetUniformLocation(context.programID, "myTextureSampler");
-    loadImage_SOIL(context.textures,"../units/target.jpg",3);
+    loadImage_SOIL(context.textures,"../units/target2.jpg",3);
     context.TextureID[3]  = glGetUniformLocation(context.programID, "myTextureSampler");
 
     glGenVertexArrays(8, context.VertexArrayID);
@@ -202,7 +269,7 @@ int main()
 
     // Compute the MVP
     // glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(view.FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-    context.ProjectionMatrix =  glm::ortho(10.0f*-4.0f/3.0f,10.0f*4.0f/3.0f,-10.0f,10.0f,0.1f, 100.0f);
+    context.ProjectionMatrix =  glm::ortho(10.0f*-context.resWidth/context.resHeight,10.0f*context.resWidth/context.resHeight,-10.0f,10.0f,0.1f, 100.0f);
     context.ViewMatrix = glm::lookAt(
             view.position,           // Camera is here
             view.position+view.direction, // and looks here : at the same position, plus "direction"
@@ -239,6 +306,13 @@ int main()
     glDeleteProgram(context.programID);
     glDeleteTextures(4, context.textures);
     glDeleteVertexArrays(8, context.VertexArrayID);
+
+    glDeleteFramebuffers(1, &context.fboId);
+    context.fboId = 0;
+    glDeleteRenderbuffers(1, &context.rboId);
+    glDeleteRenderbuffers(1, &context.rboColorId);
+    glDeleteRenderbuffers(1, &context.rboDepthId);
+    context.rboId = context.rboColorId = context.rboDepthId = 0;
 
     delete vaaE;
     delete vaaN;

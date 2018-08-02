@@ -47,14 +47,19 @@ bool CUnit_Player::user_input(GLFWwindow* window) {
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)==GLFW_PRESS) {
         newState = GLFW_PRESS;
-        this->do_y = static_cast<int>((xpos-511.0f)/108.0f+(681.0f-ypos)/63.0f);
-        this->do_x = static_cast<int>((681.0f-ypos)/63.0f-(xpos-511.0f)/108.0f);
+        float diagUpDown = 63.0f*(1080/768.0f);
+        float diagLeRe = 108.0f*(1080/768.0f);
+        float PointZero = 934.0f;
+        this->do_y = static_cast<int>((xpos-1920/2.0f)/diagLeRe+(PointZero-ypos)/diagUpDown);
+        this->do_x = static_cast<int>((PointZero-ypos)/diagUpDown-(xpos-1920/2.0f)/diagLeRe);
     } else if (glfwGetKey(window, GLFW_KEY_ENTER)==GLFW_PRESS) {
         newState = GLFW_PRESS;
         this->do_y = this->y;
         this->do_x = this->x;
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)==GLFW_PRESS) {
         newState = GLFW_PRESS;
+        this->do_y = -1;
+        this->do_x = -1;
         this->abort = true;
     }
     if (this->do_y>=0 && this->do_y<8 && this->do_x >=0 && this->do_x < 8 &&newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
