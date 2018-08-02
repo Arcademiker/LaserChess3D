@@ -50,24 +50,24 @@ bool CDreadnought::do_move(GLFWwindow* window) {
     if(this->get_nearest()!=0) {
         CUnit *enemy = this->map->get_unit(this->get_nearest()); /// get nearest enemy
 
-        int x_dir = std::max(std::min(enemy->get_x() - this->x, 1),
-                             -1); /// move -1,0 or 1 in x direction to minimize distance to enemy
-        int y_dir = std::max(std::min(enemy->get_y() - this->y, 1),
-                             -1); /// move -1,0 or 1 in y direction to minimize distance to enemy
+        int x_dir = std::max(std::min(enemy->get_x() - this->x, 1),-1); /// move -1,0 or 1 in x direction to minimize distance to enemy
+        int y_dir = std::max(std::min(enemy->get_y() - this->y, 1),-1); /// move -1,0 or 1 in y direction to minimize distance to enemy
         if(this->map->get(this->x + x_dir,this->y + y_dir) == 0) {
             this->move(this->x + x_dir, this->y + y_dir);
         } else if (this->map->get(this->x + x_dir,this->y) == 0) {
             this->move(this->x + x_dir, this->y);
         } else if (this->map->get(this->x ,this->y + y_dir) == 0) {
             this->move(this->x, this->y + y_dir);
-        } else if (x_dir == 0 && this->map->get(this->x + 1, this->y + y_dir) == 0) {
+        } else if (x_dir == 0 && this->map->is_inbound(this->x + 1, this->y + y_dir) && this->map->get(this->x + 1, this->y + y_dir) == 0 ) {
             this->move(this->x + 1, this->y + y_dir);
-        } else if (x_dir == 0 && this->map->get(this->x - 1, this->y + y_dir) == 0) {
+        } else if (x_dir == 0 && this->map->is_inbound(this->x - 1, this->y + y_dir) && this->map->get(this->x - 1, this->y + y_dir) == 0) {
             this->move(this->x - 1, this->y + y_dir);
-        } else if (y_dir == 0 && this->map->get(this->x + x_dir, this->y + 1) == 0) {
+        } else if (y_dir == 0 && this->map->is_inbound(this->x + x_dir, this->y + 1) && this->map->get(this->x + x_dir, this->y + 1) == 0) {
             this->move(this->x + x_dir, this->y + 1);
-        } else if (y_dir == 0 && this->map->get(this->x + x_dir, this->y - 1) == 0) {
+        } else if (y_dir == 0 && this->map->is_inbound(this->x + x_dir, this->y - 1) && this->map->get(this->x + x_dir, this->y - 1) == 0) {
             this->move(this->x + x_dir, this->y - 1);
+        } else {
+            this->move(this->x, this->y);
         }
 
     }

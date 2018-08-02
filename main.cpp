@@ -287,7 +287,7 @@ int main()
 
 
     /// start game:
-    for(int Level = 1; Level <= 3; ++Level) {
+    for(int Level = 3; Level <= 3; ++Level) {
         /// game logic:
         CMap* map = generate_map(Level);
         std::cout << std::endl << "++++++++++++++++++  LEVEL " << Level << "  ++++++++++++++++++" << std::endl;
@@ -355,8 +355,8 @@ CMap* generate_map(int level) {
             map->add_unit(1,6,5);
             map->add_unit(1,7,2);
             map->add_unit(1,7,5);
-            map->add_unit(2,6,3);
             map->add_unit(2,6,4);
+            map->add_unit(2,6,3);
             map->add_unit(2,7,4);
             map->add_unit(3,7,3);
 
@@ -414,14 +414,7 @@ CMap* generate_map(int level) {
             map->add_unit(5,0,6);
             map->add_unit(6,0,7);
 
-            map->add_unit(1,6,0);
-            map->add_unit(1,6,1);
-            map->add_unit(1,6,2);
-            map->add_unit(2,6,3);
-            map->add_unit(2,6,4);
-            map->add_unit(1,6,5);
-            map->add_unit(1,6,6);
-            map->add_unit(1,6,7);
+
 
             map->add_unit(1,4,2);
             map->add_unit(1,4,3);
@@ -431,6 +424,15 @@ CMap* generate_map(int level) {
             map->add_unit(2,5,3);
             map->add_unit(2,5,4);
             map->add_unit(1,5,5);
+
+            map->add_unit(1,6,0);
+            map->add_unit(1,6,1);
+            map->add_unit(1,6,2);
+            map->add_unit(2,6,3);
+            map->add_unit(2,6,4);
+            map->add_unit(1,6,5);
+            map->add_unit(1,6,6);
+            map->add_unit(1,6,7);
 
             map->add_unit(3,7,3);
             map->add_unit(2,7,1);
