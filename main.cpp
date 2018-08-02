@@ -375,6 +375,7 @@ CMap* generate_map(int level) {
             map->add_unit(6,0,0);
             map->add_unit(6,0,7);
 
+
             map->add_unit(1,5,0);
             map->add_unit(1,5,1);
             map->add_unit(1,5,2);
@@ -392,6 +393,7 @@ CMap* generate_map(int level) {
             map->add_unit(2,7,5);
             map->add_unit(2,7,6);
             map->add_unit(2,7,7);
+
 
             break;
         case 3:

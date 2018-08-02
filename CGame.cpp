@@ -293,8 +293,18 @@ void CGame::drawGame(int step) {
     for (auto &U: *this->map->get_unit_list()) {
         if(step == 4 && U.first == this->id) {
             ///animate movement:
-            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2.0f*this->old_x+((2.0f*U.second->get_x()-2.0f*this->old_x)*anime)/20.0f, 0, 2.0f*this->old_y+((2.0f*U.second->get_y()-2.0f*this->old_y)*anime)/20.0f) );//glm::mat4(1.0);
-            //this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
+            if(U.second->get_type() == 5) {
+                this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(
+                        2.0f * this->old_x + ((2.0f * U.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f,
+                        (-(anime-10.0f)*(anime-10.0f)+100.0f)/50.f,
+                        2.0f * this->old_y + ((2.0f * U.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f));
+            } else {
+                this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(
+                        2.0f * this->old_x + ((2.0f * U.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f,
+                        0,
+                        2.0f * this->old_y + ((2.0f * U.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f));
+                //this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
+            }
         } else {
             this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
 
@@ -343,9 +353,28 @@ void CGame::drawGame(int step) {
     /// draw enemy Units
     for (auto &E: *this->map->get_enemys_list()) {
 
-        if(step == 8 && this->E == E.second) {
+        if(step == 8 && this->E == E.second && !(this->old_x == this->E->get_x() && this->old_y == this->E->get_y())) {
             ///animate movement:
-            this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2.0f*this->old_x+((2.0f*E.second->get_x()-2.0f*this->old_x)*anime)/20.0f, 0, 2.0f*this->old_y+((2.0f*E.second->get_y()-2.0f*this->old_y)*anime)/20.0f) ),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
+            if(E.second->get_type() == 3 ) {
+                if(E.second->get_y() < this->old_y) {
+                    this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(
+                            2.0f * this->old_x + ((2.0f * E.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f,
+                            (-(anime - 10.0f) * (anime - 10.0f) + 100.0f) / 250.f,
+                            2.0f * this->old_y + ((2.0f * E.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f)),
+                                                             anime * -3.14f / 40.0f, glm::vec3(1, 0, 0));
+                } else {
+                    this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(
+                            2.0f * this->old_x + ((2.0f * E.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f,
+                            (-(anime - 10.0f) * (anime - 10.0f) + 100.0f) / 250.f,
+                            2.0f * this->old_y + ((2.0f * E.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f)),
+                                                             anime * 3.14f / 40.0f, glm::vec3(1, 0, 0));
+                }
+            } else {
+                this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(
+                        2.0f * this->old_x + ((2.0f * E.second->get_x() - 2.0f * this->old_x) * anime) / 20.0f, 0,
+                        2.0f * this->old_y + ((2.0f * E.second->get_y() - 2.0f * this->old_y) * anime) / 20.0f)), 3.14f,
+                                                         glm::vec3(0, 1, 0));
+            }
         } else {
             this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
         }
