@@ -20,10 +20,13 @@ CGame::~CGame() {
 int CGame::gameloop() {
     int step = 0;
     do {
+        ///calculate next game logic step
         step = this->logic_step(step);
-        if(step==4) {
+
+        ///draw game state
+        if((step==4 || step==8) && !(this->old_x == this->U->get_x() && this->old_y == this->U->get_y())) {
             ///move animation phase:
-            for(this->anime = 0; this->anime < 60; ++this->anime) {
+            for(this->anime = 0; this->anime < 20; ++this->anime) {
                 this->drawGame(step);
             }
         } else {
@@ -141,11 +144,15 @@ int CGame::logic_step(int step) {
         }
         case 8: {
             if (!this->EMap->empty()) {
+                this->old_x = this->EMap->begin()->second->get_x();
+                this->old_y = this->EMap->begin()->second->get_y();
+                this->E = this->EMap->begin()->second;
                 this->EMap->begin()->second->do_move(this->context->window);
                 this->EMap->begin()->second->do_attack(this->context->window);
                 this->EMap->erase(this->EMap->begin());
                 step = 8;
             } else {
+                this->E = this->U;
                 this->EMap->clear();
                 step = 9;
             }
@@ -236,7 +243,7 @@ void CGame::drawGame(int step) {
 
     glBindVertexArray(0);
 
-    if(step == 3 || step == 5) {
+    if(step == 3 || (step == 5 && this->U->get_type() != 5)) {
     /// draw player options
         for(int y = 0; y < 8 ; ++y) {
             for(int x = 0; x < 8 ; ++x) {
@@ -286,14 +293,13 @@ void CGame::drawGame(int step) {
     for (auto &U: *this->map->get_unit_list()) {
         if(step == 4 && U.first == this->id) {
             ///animate movement:
-            //his->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3((2*U.second->get_x()*anime)/60, 0, (2*U.second->get_y()*anime)/60));//glm::mat4(1.0);
-            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
-            this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+            this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2.0f*this->old_x+((2.0f*U.second->get_x()-2.0f*this->old_x)*anime)/20.0f, 0, 2.0f*this->old_y+((2.0f*U.second->get_y()-2.0f*this->old_y)*anime)/20.0f) );//glm::mat4(1.0);
+            //this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
         } else {
             this->context->ModelMatrix = glm::translate(glm::mat4(1.0), glm::vec3(2*U.second->get_x(), 0, 2*U.second->get_y()));//glm::mat4(1.0);
-            this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
-        }
 
+        }
+        this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
         int i = U.second->get_type();
 
         // Send our transformation to the currently bound shader,
@@ -336,10 +342,16 @@ void CGame::drawGame(int step) {
     //todo: draw used units different
     /// draw enemy Units
     for (auto &E: *this->map->get_enemys_list()) {
-        int i = E.second->get_type();
 
-        this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
+        if(step == 8 && this->E == E.second) {
+            ///animate movement:
+            this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2.0f*this->old_x+((2.0f*E.second->get_x()-2.0f*this->old_x)*anime)/20.0f, 0, 2.0f*this->old_y+((2.0f*E.second->get_y()-2.0f*this->old_y)*anime)/20.0f) ),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
+        } else {
+            this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
+        }
+       // this->context->ModelMatrix = glm::rotate(glm::translate(glm::mat4(1.0), glm::vec3(2*E.second->get_x(), 0, 2*E.second->get_y())),3.14f,glm::vec3(0,1,0));//glm::mat4(1.0);
         this->context->MVP = this->context->ProjectionMatrix * this->context->ViewMatrix * this->context->ModelMatrix;
+        int i = E.second->get_type();
 
         // Send our transformation to the currently bound shader,
         // in the "MVP" uniform

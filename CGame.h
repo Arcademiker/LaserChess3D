@@ -60,6 +60,7 @@ private:
     graphics_context* context;
     std::map<int,CUnit*>* UMap;
     CUnit* U;
+    CUnit* E;
     std::multimap<int,CUnit*>* EMap;
     int round;
     int id;

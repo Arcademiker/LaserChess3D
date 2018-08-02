@@ -41,7 +41,7 @@
 #include "CMap.h"
 #include "CGame.h"
 
-
+#include <GL/glxew.h> //for vsync
 
 
 CMap* generate_map(int level);
@@ -90,6 +90,14 @@ int main()
         getchar();
         glfwTerminate();
         return -1;
+    }
+
+    //activating vsync on linux
+    Display *dpy = glXGetCurrentDisplay();
+    GLXDrawable drawable = glXGetCurrentDrawable();
+    const int interval = 1;
+    if (drawable) {
+        glXSwapIntervalEXT(dpy, drawable, interval);
     }
 
     // Ensure we can capture the escape key being pressed below
