@@ -10,11 +10,11 @@ CDrone::CDrone(int typ, int x, int y, CMap &map) : CUnit_AI(typ, x, y, map) {
 }
 
 void CDrone::calc_move_area() {
-
+    return;
 }
 
 void CDrone::calc_attack_area() {
-
+    return;
 }
 
 
@@ -51,7 +51,9 @@ bool CDrone::do_attack(GLFWwindow* window) {
     if(target4_id != 0 && this->map->get_unit(target4_id)->get_type() > 3) {
         targets.insert({this->map->get_unit(target4_id)->get_type(),target4_id});
     }
-    this->attack(targets.begin()->second);
+    if(!targets.empty()) {
+        this->attack(targets.begin()->second);
+    }
     targets.clear();
 
     return true;
