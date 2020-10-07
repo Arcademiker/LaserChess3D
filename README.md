@@ -1,5 +1,5 @@
 # LaserChess3D
-Windows MinGW Version: https://github.com/Arcademiker/LaserChess3D
+Windows MinGW Version: https://github.com/Arcademiker/LaserChess3DMinGW
 
 
 
