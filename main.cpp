@@ -31,7 +31,8 @@
 #include <GL/glew.h>
 
 /// Include GLFW
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
+#include <external/glfw-3.1.2/include/GLFW/glfw3.h>
 
 
 /// Include GLM
