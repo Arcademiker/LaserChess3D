@@ -67,7 +67,7 @@ GLuint CreateShaderProgram(const char* pVertex_file_path, const char* pTessContr
 	if (pCompute_file_path) { nComputeShaderID = CreateShader(GL_COMPUTE_SHADER, pCompute_file_path); }
 
 	// Link the program
-	printf("Linking program\n");
+	//printf("Linking program\n");
 	GLuint nProgramID = glCreateProgram();
 	if (pVertex_file_path) { glAttachShader(nProgramID, nVertexShaderID); }
 	if (pTessControl_file_path) { glAttachShader(nProgramID, nTessControlShaderID); }

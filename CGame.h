@@ -73,13 +73,9 @@ private:
 public:
     CGame(CMap* map, graphics_context* context);
     ~CGame();
-    /// Main Game Loop
     int gameloop();
-    /// 10 different Game states called by the Main Game Loop
     int logic_step(int step);
-    /// draw current game state (step)
     void drawGame(int step);
-    /// get field x y coordinates for player mouse click
     bool user_input();
     void print_options(CUnit* unit);
 };

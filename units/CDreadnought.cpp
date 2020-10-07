@@ -19,7 +19,7 @@ CDreadnought::CDreadnought(int typ, int x, int y, CMap &map) : CUnit_AI(typ, x, 
 
 int CDreadnought::get_nearest() {
     this->scanSurrounding();
-    int nearest = 0;
+	int nearest = 0;
     if(!this->surrounding.empty()) {
         auto it = this->surrounding.begin(); /// nearest enemy
         int highestValue = 0;

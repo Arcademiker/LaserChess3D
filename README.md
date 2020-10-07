@@ -1,4 +1,46 @@
 # LaserChess3D
+Windows MinGW Version: https://github.com/Arcademiker/LaserChess3D
+
+
+
+step 1 install OpenGl:
+```
+Preferred Toolchain gcc
+```
+https://en.wikibooks.org/wiki/OpenGL_Programming/Installation/Linux
+```bash
+sudo apt-get install build-essential libgl1-mesa-dev  # Debian, Ubuntu
+sudo apt-get install libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev libfreetype6-dev  # Debian, Ubuntu
+```
+step 2 (just in case. might not be necessary):
+```bash
+sudo apt-get install libglfw3 libglfw3-dev
+```
+step 3 install (not so) Simple OpenGL Image Loader:
+```bash
+sudo apt-get install libsoil-dev
+```
+please use the following cmake options while running the cmake in the main folder:
+```bash
+foo@bar:~/LaserChess3D$ cmake -DCMAKE_BUILD_TYPE=Debug -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+foo@bar:~/LaserChess3D$ cmake --build ./cmake-build-release --target LaserChess3D -- -j 3
+foo@bar:~/LaserChess3D$ cd /cmake-build-release
+foo@bar:~/LaserChess3D/cmake-build-release$ chmod +x LaserChess3D
+```
+Run the game:
+```
+foo@bar:~/LaserChess3D/cmake-build-release$ ./LaserChess3D
+```
+
+you can also name the folder ./cmake-build-debug if this makes more sense for you.
+The release version currently has a framerate bug on some systems.
+```bash
+foo@bar:~/LaserChess3D$ cmake --build ./cmake-build-debug --target LaserChess3D -- -j 3
+```
+
+some footage: https://youtu.be/X0fdCJ2tNFU
+
+
 ![laserchess](https://user-images.githubusercontent.com/15786772/43614702-cf3fff8e-96b4-11e8-8b98-b3633cb95fdd.png)
 
 ```

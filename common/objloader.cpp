@@ -114,9 +114,9 @@ bool loadOBJ(
 //#ifdef USE_ASSIMP // don't use this #define, it's only for me (it AssImp fails to compile on your machine, at least all the other tutorials still work)
 
 // Include AssImp
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
+#include <external/assimp-3.3.1/include/assimp/Importer.hpp>      // C++ importer interface
+#include <external/assimp-3.3.1/include/assimp/scene.h>           // Output data structure
+#include <external/assimp-3.3.1/include/assimp/postprocess.h>     // Post processing flags
 
 bool loadAssImp(
 	const char * path,

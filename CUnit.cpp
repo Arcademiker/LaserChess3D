@@ -31,7 +31,6 @@ int CUnit::get_damage() {
     return this->damage;
 }
 
-/// move unit from current place on map to x,y
 bool CUnit::move(int to_x, int to_y) {
     if( this->map->move(this->x, this->y, to_x, to_y) ) {
         this->x = to_x;
@@ -42,13 +41,11 @@ bool CUnit::move(int to_x, int to_y) {
     return false;
 }
 
-/// loose health from attack
 bool CUnit::loose_health(int damage) {
     this->health = this->health - damage;
     return this->health < 1; /// Unit dies by the damage
 }
 
-/// calculate a shot in x,y direction
 int CUnit::shot(int dir_x, int dir_y) {
     int at_x = this->x+dir_x;
     int at_y = this->y+dir_y;

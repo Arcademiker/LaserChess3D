@@ -27,7 +27,6 @@ public:
     bool attack(int target_id) override;
     std::vector<std::vector<bool>>* get_player_optons() override;
     std::vector<std::vector<bool>>* get_attack_range() override;
-    /// get field x y coordinates for player mouse click
     bool user_input(GLFWwindow* window);
     bool is_abort() override ;
 };

@@ -39,7 +39,6 @@ std::vector<std::vector<bool>> *CUnit_Player::get_player_optons() {
     return &this->player_options;
 }
 
-/// get field x y coordinates for player mouse click
 bool CUnit_Player::user_input(GLFWwindow* window) {
     int newState = GLFW_RELEASE;
     this->abort = false;
